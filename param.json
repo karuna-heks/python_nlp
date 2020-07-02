@@ -1,0 +1,10 @@
+{
+    "name": "testCorpus",
+    "language": "rus",
+    "source": "unknown",
+    "stemType": "lemmatization",
+    "stopWordsType": "default",
+    "metric": "tf",
+    "dbCorpusPath": "/mnt/hgfs/vmware D/myCorpusDB/myCorpuses_test.db",
+    "docCorpusPath": "/mnt/hgfs/vmware D/testTopics"
+}
