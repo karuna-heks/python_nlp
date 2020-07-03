@@ -84,7 +84,7 @@ CREATE TABLE Dictionary (
             return """UPDATE TopicList SET """+strName+""" = \""""+strVal+"""\" 
     WHERE id = """+str(strID)+""";"""
     
-    def getUdateTexts(self, strID, strName, strVal):
+    def getUpdateTexts(self, strID, strName, strVal):
         if (isinstance(strVal, int)):
             return """UPDATE TopicList SET """+strName+""" = """+str(strVal)+""" 
     WHERE id = """+str(strID)+""";"""
