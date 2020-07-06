@@ -162,15 +162,28 @@ class OpenTexts:
         print("OT__getText")
         path = self.__path + "/" + topic + "/" + text
         # f = open(path, mode = "r", encoding = "ascii",)
-        f = open(path, mode = "r", encoding = "utf-16")
-        with open(path, mode = "r", encoding = "utf-16", 
-                  errors = "ignore") as f:
+        f = open(path, mode = "r", encoding = "utf-8")
+        try: 
                 
             # tempText = f.read().decode("utf-16")
             tempText = f.read()
-            tempText = tempText.replace('"', '""')
-            # <- прочитать текст, заменить символ " на "", для sqlite
+            # <- прочитать текст
+        except UnicodeError:
+            f = open(path, mode = "r", encoding = "utf-16")
+            try:
+                tempText = f.read()
+            except UnicodeError:
+                f = open(path, mode = "r", encoding = "cp1251")
+                try:
+                    tempText = f.read()
+                finally:
+                    f.close()
+            finally:
+                f.close()
+        finally:
             f.close()
+        tempText = tempText.replace('"', '""') 
+        # <- заменить символ " на "", для sqlite
         return tempText
         #!!!добавить: реализация метода
         # склеивание пути, открытие текста, возврат текста
