@@ -185,7 +185,6 @@ class OpenTexts:
         tempText = tempText.replace('"', '""') 
         # <- заменить символ " на "", для sqlite
         return tempText
-        #!!!добавить: реализация метода
         # склеивание пути, открытие текста, возврат текста
     
     
