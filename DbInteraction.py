@@ -99,19 +99,19 @@ class DbInteraction:
     
     def updateTopicList(self, strName, strVal, stringID):
         print("dbUpdateTopicList: {0}, {1}, {2}".format(strName, strVal, stringID))
-        self.sendQuery(self.connectionMain, self.q.getUpdateTopicList(stringID, strName, strVal))
+        self.sendQuery(self.connectionData, self.q.getUpdateTopicList(stringID, strName, strVal))
         #+ вызов метода добавления данных в таблицу topicList, по stringID
         
         
     def updateTexts(self, strName, strVal, stringID):
         print("dbUpdataTexts: {0}, {1}, {2}".format(strName, strVal, stringID))
-        self.sendQuery(self.connectionMain, self.q.getUpdateTexts(stringID, strName, strVal))
+        self.sendQuery(self.connectionData, self.q.getUpdateTexts(stringID, strName, strVal))
         #+ вызов метода добавления данных в таблицу texts, по stringID
     
     
     def updateDictionary(self, strName, strVal, stringID):
         print("dbUpdateDictionary: {0}, {1}, {2}".format(strName, strVal, stringID))
-        self.sendQuery(self.connectionMain, self.q.getUpdateDictionary(stringID, strName, strVal))
+        self.sendQuery(self.connectionData, self.q.getUpdateDictionary(stringID, strName, strVal))
         #+ вызов метода добавления данных в таблицу dictionary, по stringID
     
     

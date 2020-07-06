@@ -45,19 +45,10 @@ def newDataPath(oldPath, corpusID):
 # q = DbQuery()
 # addTableTopicList(c, getQuery())
         
-oldPath = '/mnt/hgfs/vmware D/myCorpusDB/doublefwe/kekes'
-corpusID = 32
-print(oldPath)
-
-
-
-
-
-
-
-testNewStr = newDataPath(oldPath, str(corpusID)+'.db')
-print(testNewStr)
-
+str1 = """string "string" string"""
+print(str1)
+str2 = str1.replace('"', '""')
+print(str2)
 
 
 

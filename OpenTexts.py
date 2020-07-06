@@ -7,7 +7,7 @@ class OpenTexts:
     __path = ''
     __tempData = {'name': '', 
                 'topicName': '',
-                'tempBaseText': ''}
+                'baseText': ''}
     __topicNameList = None # список с именами топиков (тем)
     __textNameList = None # список с именами текстов конкретной темы
     
@@ -92,7 +92,7 @@ class OpenTexts:
                 # <- если число пройденных топико ещё меньше чем кол-во
                 # топиков общее, то строим путь к ещё одной папке с текстами
                 # и открываем список файлов в этой папке
-                if (len(self.__textNameList < 1)):
+                if (len(self.__textNameList) < 1):
                     return False
                 else:
                     self.__isReady = True
@@ -127,11 +127,11 @@ class OpenTexts:
            sys.exit("Error: End of text list")
         # сохранение данных о имени, теме и самого текста 
         # во временной переменной и возврат её к вызываемой программе ->
-        self.__tempData['name'] = self.__textNameList[self.__iterText]
+        self.__tempData['name'] = self.__textNameList[self.__iterText-1]
         self.__tempData['topicName'] = self.__topicNameList[self.__iterTopic]
-        self.__tempData['tempBaseText'] = self.__getText(
+        self.__tempData['baseText'] = self.__getText(
             self.__topicNameList[self.__iterTopic],
-            self.__textNameList[self.__iterText])
+            self.__textNameList[self.__iterText-1])
         return self.__tempData
     
     
@@ -163,9 +163,14 @@ class OpenTexts:
         path = self.__path + "/" + topic + "/" + text
         # f = open(path, mode = "r", encoding = "ascii",)
         f = open(path, mode = "r", encoding = "utf-16")
-        # tempText = f.read().decode("utf-16")
-        tempText = f.read()
-        f.close()
+        with open(path, mode = "r", encoding = "utf-16", 
+                  errors = "ignore") as f:
+                
+            # tempText = f.read().decode("utf-16")
+            tempText = f.read()
+            tempText = tempText.replace('"', '""')
+            # <- прочитать текст, заменить символ " на "", для sqlite
+            f.close()
         return tempText
         #!!!добавить: реализация метода
         # склеивание пути, открытие текста, возврат текста

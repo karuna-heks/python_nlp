@@ -47,12 +47,12 @@ CREATE TABLE Dictionary (
     ("""+str(corpusID)+""");"""
     
     def getNewStringTexts(self, corpusID):
-        return """INSERT INTO Texts
+        return """INSERT INTO Texts (Corpus_id)
     VALUES
     ("""+str(corpusID)+""");"""
     
     def getNewStringDictionary(self, corpusID):
-        return """INSERT INTO Dictionary 
+        return """INSERT INTO Dictionary (Corpus_id)
     VALUES
     ("""+str(corpusID)+""");"""
 
@@ -86,18 +86,18 @@ CREATE TABLE Dictionary (
     
     def getUpdateTexts(self, strID, strName, strVal):
         if (isinstance(strVal, int)):
-            return """UPDATE TopicList SET """+strName+""" = """+str(strVal)+""" 
+            return """UPDATE Texts SET """+strName+""" = """+str(strVal)+""" 
     WHERE id = """+str(strID)+""";"""
         else:
-            return """UPDATE TopicList SET """+strName+""" = \""""+strVal+"""\" 
+            return """UPDATE Texts SET """+strName+""" = \""""+strVal+"""\" 
     WHERE id = """+str(strID)+""";"""
     
     def getUpdateDictionary(self, strID, strName, strVal):
         if (isinstance(strVal, int)):
-            return """UPDATE TopicList SET """+strName+""" = """+str(strVal)+""" 
+            return """UPDATE Dictionary SET """+strName+""" = """+str(strVal)+""" 
     WHERE id = """+str(strID)+""";"""
         else:
-            return """UPDATE TopicList SET """+strName+""" = \""""+strVal+"""\" 
+            return """UPDATE Dictionary SET """+strName+""" = \""""+strVal+"""\" 
     WHERE id = """+str(strID)+""";"""
 
     def getDataMain(self, strID, strName):
