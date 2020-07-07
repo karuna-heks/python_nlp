@@ -3,6 +3,7 @@ import os
 from pymystem3 import Mystem
 import re
 import sys
+from nltk.stem import PorterStemmer
 
 
 #text = "Backgammon is one, of the oldest known board games. Its history can be traced back nearly 5,000 years to archeological discoveries in the Middle East. It is a two player game where each player has fifteen checkers which move between twenty-four points according to the roll of two dice."
@@ -19,9 +20,9 @@ text3 = """The colour designations for these iron plates are as follows: \
     of these iron plates is consistent with the heavier bumper plates \
     (i.e. 1 kg and 10 kg are green, 1.5 kg and 15 kg are yellow, etc.).\
         Вот это поворот, конечно, в возникшей крайней ситуации... \
-            Что же теперь поделать, если 13 лет не могу справиться \
-                с последовательностями слов :4 вот это субститьюшн \
-                    авы у ук 33 43 а: авот? ав в Ашот в Ашон!Кек."""
+        Что же теперь поделать, если 13 лет не могу справиться \
+        с последовательностями слов :4 вот это это что это субститьюшн \
+        авы у ук ну ты это что это 33 43 а: авот? ав в Ашот в Ашон!Кек."""
     
     
 # f = open(r'/mnt/hgfs/vmware D/testRussian/output_file.txt', 'r')
@@ -49,10 +50,19 @@ textList = text.split(" ")
 print("5\n\n")
 print(textList)
 
-textList.remove("for")
+removeList = ['for' , 'is', 'kg', 'are', 'это', 'у']
+
+for word in removeList:
+    for i in range(textList.count(word)):
+        textList.remove(word)
 print("6\n\n")
 print(textList)
 
+ps = PorterStemmer()
+list2 = []
+for w in textList:
+    list2.append(ps.stem(w))
+print(list2)
 
 #sentences = nltk.sent_tokenize(text)
 # words = nltk.word_tokenize(text, language = 'russian')

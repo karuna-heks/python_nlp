@@ -1,8 +1,8 @@
 {
     "name": "testCorpus",
-    "language": "rus",
+    "language": "eng",
     "source": "unknown",
-    "stemType": "lemmatization",
+    "stemType": "stemming",
     "stopWordsType": "default",
     "metric": "tf",
     "dbCorpusPath": "/mnt/hgfs/vmware D/myCorpusDB/myCorpuses_test.db",

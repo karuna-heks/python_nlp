@@ -1,6 +1,7 @@
 from DbInteraction import DbInteraction
 from Param import Param
 from OpenTexts import OpenTexts
+from CorpusParser import CorpusParser
 
 
 def main():
@@ -40,7 +41,16 @@ def main():
         db.updateTexts('topicName', tempData['topicName'], lastID) #
         db.updateTexts('baseText', tempData['baseText'], lastID) #
         
-    
+        
+    parser = CorpusParser(language = p.readLanguage(), 
+                          stemType = p.readStemType(),
+                          stopWordsType = p.readStopWordsType)
+    tempText = ''
+    for i in range(db.getTextsSize()):
+        tempText = db.getTextsData('baseText', i+1)[0][0]
+        tempText = parser.parsing(tempText)
+        db.updateTexts('formattedText', tempText, i+1)
+        
 
 
     

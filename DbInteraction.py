@@ -1,7 +1,6 @@
 import sqlite3
 from sqlite3 import Error
 from DbQuery import DbQuery
-# import sqlalchemy
 
 class DbInteraction:
     
