@@ -6,5 +6,5 @@
     "stopWordsType": "default",
     "metric": "tf",
     "dbCorpusPath": "/mnt/hgfs/vmware D/myCorpusDB/myCorpuses_test.db",
-    "docCorpusPath": "/mnt/hgfs/vmware D/topics"
+    "docCorpusPath": "/mnt/hgfs/vmware D/topicsSmall"
 }

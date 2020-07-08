@@ -2,6 +2,8 @@ from DbInteraction import DbInteraction
 from Param import Param
 from OpenTexts import OpenTexts
 from CorpusParser import CorpusParser
+from Dictionary import Dictionary
+import json
 
 
 def main():
@@ -50,8 +52,27 @@ def main():
         tempText = db.getTextsData('baseText', i+1)[0][0]
         tempText = parser.parsing(tempText)
         db.updateTexts('formattedText', tempText, i+1)
-        
+    # <- выполняется полный проход по всем сырым текстам в бд
+    # забираются сырые тексты, отправляются на очистку
+    # возвращаются тексты после фильтрации и отправляются в БД обратно
 
+
+
+    d = Dictionary()
+    for i in range(db.getTextsSize()):
+        d.addData(db.getTextsData('formattedText', i+1)[0][0])
+        tempDict = d.getLastDictionary()
+        tempStr = json.dumps(tempDict)
+        tempStr = tempStr.replace('"', '""') 
+        db.updateTexts('localDictionary', tempStr, i+1)
+    
+    tempDict = d.getGlobalDictionary()
+    for key, val in tempDict.items():
+        lastID = db.addDictionary()
+        db.updateDictionary('word', key, lastID)
+        db.updateDictionary('value', val, lastID)
+        
+    
 
     
 
