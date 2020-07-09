@@ -4,6 +4,7 @@ from OpenTexts import OpenTexts
 from CorpusParser import CorpusParser
 from Dictionary import Dictionary
 from Vectorizer import Vectorizer
+from CorpusAnalyzer import CorpusAnalyzer
 import json
 
 
@@ -24,6 +25,7 @@ def main():
     
     
     
+    analyzer = CorpusAnalyzer()
     
     op = OpenTexts(p.readDocCorpusPath()) # иниц. класса для работы с исходными
     # текстами
@@ -43,6 +45,10 @@ def main():
         # данных в соответствующей строке
         db.updateTexts('topicName', tempData['topicName'], lastID) #
         db.updateTexts('baseText', tempData['baseText'], lastID) #
+        
+        analyzer.addTopicName(tempData['topicName'])
+        db.updateTexts('topicNum', analyzer.getTopicNum(tempData['topicName']), lastID)
+        
         
         
     parser = CorpusParser(language = p.readLanguage(), 
@@ -67,6 +73,7 @@ def main():
         tempStr = tempStr.replace('"', '""') 
         db.updateTexts('localDictionary', tempStr, i+1)
         # <- добавление в БД локальных словарей в виде json строки
+    
     
     tempDict = d.getGlobalDictionary()
     for key, val in tempDict.items():
