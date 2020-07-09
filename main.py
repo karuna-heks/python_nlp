@@ -25,7 +25,7 @@ def main():
     
     
     
-    analyzer = CorpusAnalyzer()
+    analyzer = CorpusAnalyzer() # аналайзер дополняет БД оставшимися данными
     
     op = OpenTexts(p.readDocCorpusPath()) # иниц. класса для работы с исходными
     # текстами
@@ -36,9 +36,9 @@ def main():
     # сам определяет, какой метод надо использовать, на основе параметров 
     while(op.hasNext()): # проверка на наличие следующего текста
         tempData = op.getNext() # извлечение базовой информации из 
+        # файла, сохранение в словаре
         print("tempData: ")
         print(tempData)
-        # файла, сохранение в словаре
         lastID = db.addTexts() # добавление новой строки в бд для 
         # информации по текстам и возврат её номера
         db.updateTexts('name', tempData['name'], lastID) # обновление 
@@ -48,6 +48,21 @@ def main():
         
         analyzer.addTopicName(tempData['topicName'])
         db.updateTexts('topicNum', analyzer.getTopicNum(tempData['topicName']), lastID)
+        # <- аналайзер необходим, для получения списка исползуемых топиков.
+        # он запоминает имена топиков, присваивает им имена и, в данном месте,
+        # отправляет имена в БД, для отчётности и для дальнейшего формирования
+        # выходного вектора.
+        
+        
+        
+    for name, val, i in zip(analyzer.getList().keys(), 
+                         analyzer.getList().values(),
+                         range(analyzer.getNumOfTopics())):
+        db.addTopicList() # добавление новой строки в бд для списка топиков
+        db.updateTopicList('name', name, i+1)
+        db.updateTopicList('topicNum', val, i+1)
+        db.updateTopicList('numOfTexts', analyzer.getTopicCount(name), i+1)
+        #!!! добавить описание кода
         
         
         
