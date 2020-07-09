@@ -3,6 +3,7 @@ from Param import Param
 from OpenTexts import OpenTexts
 from CorpusParser import CorpusParser
 from Dictionary import Dictionary
+from Vectorizer import Vectorizer
 import json
 
 
@@ -65,15 +66,30 @@ def main():
         tempStr = json.dumps(tempDict)
         tempStr = tempStr.replace('"', '""') 
         db.updateTexts('localDictionary', tempStr, i+1)
+        # <- добавление в БД локальных словарей в виде json строки
     
     tempDict = d.getGlobalDictionary()
     for key, val in tempDict.items():
         lastID = db.addDictionary()
         db.updateDictionary('word', key, lastID)
         db.updateDictionary('value', val, lastID)
+        # <- добавление глобального словаря в бд, целиком
+        #!!! нужно пофиксить. работает слишком медленно
         
     
-
+    v = Vectorizer()
+    v.addGlobDict(d.getGlobalDictionary())
+    for i in range(db.getTextsSize()):
+        tempStr = db.getTextsData('localDictionary', i+1)[0][0]
+        tempDict = json.loads(tempStr)
+        tempArray = v.getVecFromDict(tempDict)
+        tempStr = json.dumps(tempArray)
+        db.updateTexts('vector', tempStr, i+1)
+        # <- инициализация векторизатора, отправка глобального словаря в 
+        # него, извлечение из бд локального словаря, преобразование 
+        # его из json-строки в стандартный словарь отправка словаря 
+        # в векторизатор, получение массива преобразование массива 
+        # в жсон-строку и отправка обратно в бд
     
 
 

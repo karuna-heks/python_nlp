@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['main.py', 'DbInteraction.py', 'CorpusParser.py', 'DbQuery.py', 'param.json', 'tests.py', 'sqlTest.py']
+recent_files = ['main.py', 'Dictionary.py', 'DbInteraction.py', 'param.json', 'testJson.py', 'OpenTexts.py']
 
