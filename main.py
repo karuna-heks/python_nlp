@@ -8,6 +8,7 @@ from CorpusAnalyzer import CorpusAnalyzer
 import time
 import json
 
+# test comment
 
 def main():
     print('start')
