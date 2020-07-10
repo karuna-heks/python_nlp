@@ -5,11 +5,17 @@ from CorpusParser import CorpusParser
 from Dictionary import Dictionary
 from Vectorizer import Vectorizer
 from CorpusAnalyzer import CorpusAnalyzer
+import time
 import json
 
 
 def main():
     print('start')
+    
+    t = time.localtime()
+    compilationTime = "{0}.{1}.{2} {3}:{4}".format(t.tm_year, t.tm_mon, 
+                                                   t.tm_mday, t.tm_hour, 
+                                                   t.tm_min)
     
     p = Param() #инициализация класса с параметрами работы
     db = DbInteraction(p.readDBCorpusPath()) #иниц. класса для работы с БД
@@ -22,15 +28,18 @@ def main():
     db.updateCorpus('stemType', p.readStemType(), corpusID) #
     db.updateCorpus('stopWordsType', p.readStopWordsType(), corpusID) #
     db.updateCorpus('metric', p.readMetric(), corpusID) #
+    db.updateCorpus('compilationTime', compilationTime, corpusID)
     
-    lastID = db.addInfo()
-    db.updateInfo('name', p.readName(), lastID) #добавление начальной инфо
+    
+    db.addInfo()
+    db.updateInfo('name', p.readName(), 1) #добавление начальной инфо
     # рмации о корпусе. данные считываются с параметров и отправляются
-    db.updateInfo('language', p.readLanguage(), lastID) #
-    db.updateInfo('stemType', p.readStemType(), lastID) #
-    db.updateInfo('stopWordsType', p.readStopWordsType(), lastID) #
-    db.updateInfo('metric', p.readMetric(), lastID) #
-    db.updateInfo('corpus_ID', corpusID, lastID)
+    db.updateInfo('language', p.readLanguage(), 1)
+    db.updateInfo('stemType', p.readStemType(), 1)
+    db.updateInfo('stopWordsType', p.readStopWordsType(), 1)
+    db.updateInfo('metric', p.readMetric(), 1)
+    db.updateInfo('corpus_ID', corpusID, 1)
+    db.updateInfo('compilationTime', compilationTime, 1)
     
     
     
@@ -71,9 +80,10 @@ def main():
         db.updateTopicList('name', name, i+1)
         db.updateTopicList('topicNum', val, i+1)
         db.updateTopicList('numOfTexts', analyzer.getTopicCount(name), i+1)
-        #!!! добавить описание кода
+        # <- обновление информации в таблице со списком топиков
+        # общая информация, для отчетности
         
-        
+    
         
     parser = CorpusParser(language = p.readLanguage(), 
                           stemType = p.readStemType(),
@@ -106,7 +116,21 @@ def main():
         db.updateDictionary('value', val, lastID)
         # <- добавление глобального словаря в бд, целиком
         #!!! нужно пофиксить. работает слишком медленно
+       
         
+        
+    numberOfTopics = db.getTopicListSize()
+    numberOfTexts = db.getTextsSize()
+    dictionarySize = db.getDictionarySize()
+    db.updateCorpus('numOfTopics', numberOfTopics, corpusID)
+    db.updateInfo('numOfTopics', numberOfTopics, 1)
+    db.updateCorpus('numOfTexts', numberOfTexts, corpusID)
+    db.updateInfo('numOfTexts', numberOfTexts, 1)
+    db.updateCorpus('dictionarySize', dictionarySize, corpusID)
+    db.updateInfo('dictionarySize', dictionarySize, 1)
+    # <- обновление общей информации в БД (для отчетности)
+    
+    
     
     v = Vectorizer()
     v.addGlobDict(d.getGlobalDictionary())

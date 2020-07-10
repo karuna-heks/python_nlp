@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
+import numpy as np
+from numpy import linalg as la
 
 class Vectorizer:
     
@@ -27,7 +29,9 @@ class Vectorizer:
                 tempArray.append(d.get(key))
             else:
                 tempArray.append(0)
-        return tempArray
+        npArray = np.array(tempArray)
+        npArray = npArray/la.norm(npArray)
+        return list(npArray)
     # <- метод получает словарь, содержащий все слова определённого текста
     # и сравнивая его содержимое с глобальным словарём, который должен
     # быть добавлен заранее, методом addGlobDict, формирует вектор

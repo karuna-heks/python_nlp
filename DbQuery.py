@@ -40,6 +40,10 @@ CREATE TABLE Dictionary (
 CREATE TABLE Info (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   name TEXT,
+  compilationTime TEXT,
+  learningTime TEXT,
+  resultVal1 INTEGER,
+  resultVal2 INTEGER,
   language TEXT,
   source TEXT,
   numOfTopics INTEGER,
@@ -48,10 +52,9 @@ CREATE TABLE Info (
   stemType TEXT,
   stopWordsType TEXT,
   metric TEXT,
-  neuralNetwork TEXT,
+  neuralNetworkStruct TEXT,
   resultFull TEXT,
-  resultVal1 INTEGER,
-  resultVal2 INTEGER,
+  
   time TEXT,
   corpus_id INTEGER);
 """
@@ -72,19 +75,19 @@ CREATE TABLE Info (
         return """INSERT INTO Info DEFAULT VALUES;"""
 
     def getCountTableMain(self):
-        return """SELECT COUNT(id) FROM Corpuses;"""
+        return """SELECT MAX(id) FROM Corpuses;"""
     
     def getCountTableTopicList(self):
-        return """SELECT COUNT(id) FROM TopicList;"""
+        return """SELECT MAX(id) FROM TopicList;"""
     
     def getCountTableTexts(self):
-        return """SELECT COUNT(id) FROM Texts;"""
+        return """SELECT MAX(id) FROM Texts;"""
     
     def getCountTableDictionary(self):
-        return """SELECT COUNT(id) FROM Dictionary;"""
+        return """SELECT MAX(id) FROM Dictionary;"""
     
     def getCountTableInfo(self):
-        return """SELECT COUNT(id) FROM Info;"""
+        return """SELECT MAX(id) FROM Info;"""
 
     def getUpdateMain(self, strID, strName, strVal):
         if (isinstance(strVal, int)):

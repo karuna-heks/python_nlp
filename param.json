@@ -1,10 +1,10 @@
 {
     "name": "testCorpus",
     "language": "eng",
-    "source": "unknown",
+    "source": "myCorpusSmall",
     "stemType": "stemming",
-    "stopWordsType": "default",
+    "stopWordsType": "none",
     "metric": "tf",
-    "dbCorpusPath": "/mnt/hgfs/vmware D/myCorpusDB/myCorpuses2.db",
+    "dbCorpusPath": "/mnt/hgfs/vmware D/dataBase/myCorpus.db",
     "docCorpusPath": "/mnt/hgfs/vmware D/topicsSmall"
 }
