@@ -5,6 +5,6 @@
     "stemType": "stemming",
     "stopWordsType": "default",
     "metric": "tf",
-    "dbCorpusPath": "/mnt/hgfs/vmware D/myCorpusDB/myCorpuses_test.db",
+    "dbCorpusPath": "/mnt/hgfs/vmware D/myCorpusDB/myCorpuses2.db",
     "docCorpusPath": "/mnt/hgfs/vmware D/topicsSmall"
 }

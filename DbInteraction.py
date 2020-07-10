@@ -31,10 +31,12 @@ class DbInteraction:
     def addCorpus(self):
         print("dbAddCorpus")
         self.sendQuery(self.connectionMain, self.q.getNewStringMain())
-        tempStr = self.readQuery(self.connectionMain, self.q.getCountTableMain())[0][0]
+        tempStr = self.readQuery(self.connectionMain, 
+                                 self.q.getCountTableMain())[0][0]
         print("tempStr:")
         print(tempStr)
         return tempStr
+        # <- метод добавляет новую строку в общую БД и возвращает айди строки
         # return self.readQuery(connection, self.q.getCountTableMain())
         #+ отправить команду на добавление строки пустой
         # считать id последней строки 
@@ -43,13 +45,15 @@ class DbInteraction:
     
     def updateCorpus(self, strName, strVal, corpusID):
         print("dbUpdateCorpus: {0}, {1}, {2}".format(strName, strVal, corpusID))
-        self.sendQuery(self.connectionMain, self.q.getUpdateMain(corpusID, strName, strVal))
+        self.sendQuery(self.connectionMain, 
+                       self.q.getUpdateMain(corpusID, strName, strVal))
         #+ вызов метода добавления данных в корпус, по actualCorpusID
         
         
     def getCorpusData(self, strName, corpusID):
         print("dbGetCorpusData: {0}, {1}".format(strName, corpusID))
-        return self.readQuery(self.connectionMain, self.q.getDataTexts(corpusID, strName))
+        return self.readQuery(self.connectionMain, 
+                              self.q.getDataTexts(corpusID, strName))
         #+ вызов метода получения данных из строки таблицы
         # вернуть strVal
         
@@ -66,13 +70,16 @@ class DbInteraction:
         self.addTableTopicList(self.connectionData)
         self.addTableTexts(self.connectionData)
         self.addTableDictionary(self.connectionData)
+        self.addTableInfo(self.connectionData)
         #+вызов методов добавления таблиц в бд для полных данных корпуса (myData.bd)
         
         
     def addTopicList(self):
         print("dbTopicList")
-        self.sendQuery(self.connectionData, self.q.getNewStringTopicList(self.corpusID))
-        return self.readQuery(self.connectionData, self.q.getCountTableTopicList())[0][0]
+        self.sendQuery(self.connectionData, 
+                       self.q.getNewStringTopicList(self.corpusID))
+        return self.readQuery(self.connectionData, 
+                              self.q.getCountTableTopicList())[0][0]
         #+ отправить команду на добавление строки непустой
         # считать id последней строки 
         # вернуть id
@@ -80,8 +87,10 @@ class DbInteraction:
     
     def addTexts(self):
         print("dbAddTexts")
-        self.sendQuery(self.connectionData, self.q.getNewStringTexts(self.corpusID))
-        return self.readQuery(self.connectionData, self.q.getCountTableTexts())[0][0]
+        self.sendQuery(self.connectionData, 
+                       self.q.getNewStringTexts(self.corpusID))
+        return self.readQuery(self.connectionData, 
+                              self.q.getCountTableTexts())[0][0]
         #+ отправить команду на добавление строки непустой
         # считать id последней строки 
         # вернуть id
@@ -89,8 +98,20 @@ class DbInteraction:
     
     def addDictionary(self):
         print("bdAddTexts")
-        self.sendQuery(self.connectionData, self.q.getNewStringDictionary(self.corpusID))
-        return self.readQuery(self.connectionData, self.q.getCountTableDictionary())[0][0]
+        self.sendQuery(self.connectionData, 
+                       self.q.getNewStringDictionary(self.corpusID))
+        return self.readQuery(self.connectionData, 
+                              self.q.getCountTableDictionary())[0][0]
+        #+ отправить команду на добавление строки непустой
+        # считать id последней строки 
+        # вернуть id
+    
+    def addInfo(self):
+        print("bdAddTexts")
+        self.sendQuery(self.connectionData, 
+                       self.q.getNewStringInfo(self.corpusID))
+        return self.readQuery(self.connectionData, 
+                              self.q.getCountTableInfo())[0][0]
         #+ отправить команду на добавление строки непустой
         # считать id последней строки 
         # вернуть id
@@ -98,40 +119,60 @@ class DbInteraction:
     
     def updateTopicList(self, strName, strVal, stringID):
         print("dbUpdateTopicList: {0}, {1}, {2}".format(strName, strVal, stringID))
-        self.sendQuery(self.connectionData, self.q.getUpdateTopicList(stringID, strName, strVal))
+        self.sendQuery(self.connectionData, 
+                       self.q.getUpdateTopicList(stringID, strName, strVal))
         #+ вызов метода добавления данных в таблицу topicList, по stringID
         
         
     def updateTexts(self, strName, strVal, stringID):
         print("dbUpdataTexts: {0}, {1}, {2}".format(strName, strVal, stringID))
-        self.sendQuery(self.connectionData, self.q.getUpdateTexts(stringID, strName, strVal))
+        self.sendQuery(self.connectionData, 
+                       self.q.getUpdateTexts(stringID, strName, strVal))
         #+ вызов метода добавления данных в таблицу texts, по stringID
     
     
     def updateDictionary(self, strName, strVal, stringID):
         print("dbUpdateDictionary: {0}, {1}, {2}".format(strName, strVal, stringID))
-        self.sendQuery(self.connectionData, self.q.getUpdateDictionary(stringID, strName, strVal))
+        self.sendQuery(self.connectionData, 
+                       self.q.getUpdateDictionary(stringID, strName, strVal))
         #+ вызов метода добавления данных в таблицу dictionary, по stringID
+        
+        
+    def updateInfo(self, strName, strVal, stringID):
+        print("dbupdateInfo: {0}, {1}, {2}".format(strName, strVal, stringID))
+        self.sendQuery(self.connectionData, 
+                       self.q.getUpdateInfo(stringID, strName, strVal))
+        #+ вызов метода добавления данных в таблицу topicList, по stringID
     
     
     def getTopicListData(self, strName, stringID):
         print("dbGetTopicListData: {0}".format(strName))
-        return self.readQuery(self.connectionData, self.q.getDataTopicList(stringID, strName))
+        return self.readQuery(self.connectionData, 
+                              self.q.getDataTopicList(stringID, strName))
         #+ вызов метода получения данных из строки таблицы listData
         # вернуть strVal
     
     
     def getTextsData(self, strName, stringID):
         print("dbGetTextsData: {0}".format(strName))
-        return self.readQuery(self.connectionData, self.q.getDataTexts(stringID, strName))
+        return self.readQuery(self.connectionData, 
+                              self.q.getDataTexts(stringID, strName))
         #+ вызов метода получения данных из строки таблицы textsData
         # вернуть strVal
         
     
     def getDictionaryData(self, strName, stringID):
         print("dbGetDictionaryData: {0}".format(strName))
-        return self.readQuery(self.connectionData, self.q.getDataDictionary(stringID, strName))
+        return self.readQuery(self.connectionData, 
+                              self.q.getDataDictionary(stringID, strName))
         #+ вызов метода получения данных из строки таблицы dictionaryData
+        # вернуть strVal
+    
+    def getInfoData(self, strName, stringID):
+        print("dbGetTextsData: {0}".format(strName))
+        return self.readQuery(self.connectionData, 
+                              self.q.getDataInfo(stringID, strName))
+        #+ вызов метода получения данных из строки таблицы textsData
         # вернуть strVal
     
     
@@ -151,6 +192,11 @@ class DbInteraction:
         print("dbAddDictionaryTable")
         self.sendQuery(connection, self.q.getNewTableDictionary())
         #++вызов метода добавления таблицы с соответствующими столбцами
+        
+    def addTableInfo(self, connection):
+        print("dbAddTableInfo")
+        self.sendQuery(connection, self.q.getNewTableInfo())
+        # вызов метода добавления таблицы с общей инфой о входных данных
         
         
     def getConnect(self, path):
@@ -205,13 +251,20 @@ class DbInteraction:
         return self.corpusID
     
     def getTopicListSize(self):
-        return self.readQuery(self.connectionData, self.q.getCountTableTopicList())[0][0]
+        return self.readQuery(self.connectionData, 
+                              self.q.getCountTableTopicList())[0][0]
     
     def getTextsSize(self):
-        return self.readQuery(self.connectionData, self.q.getCountTableTexts())[0][0]
+        return self.readQuery(self.connectionData, 
+                              self.q.getCountTableTexts())[0][0]
     
     def getDictionarySize(self):
-        return self.readQuery(self.connectionData, self.q.getCountTableDictionary())[0][0]
+        return self.readQuery(self.connectionData, 
+                              self.q.getCountTableDictionary())[0][0]
+    
+    def getInfoSize(self):
+        return self.readQuery(self.connectionData, 
+                              self.q.getCountTableInfo())[0][0]
 
 if __name__ == '__main__':
     db = DbInteraction()

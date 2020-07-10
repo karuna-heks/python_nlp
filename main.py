@@ -23,6 +23,15 @@ def main():
     db.updateCorpus('stopWordsType', p.readStopWordsType(), corpusID) #
     db.updateCorpus('metric', p.readMetric(), corpusID) #
     
+    lastID = db.addInfo()
+    db.updateInfo('name', p.readName(), lastID) #добавление начальной инфо
+    # рмации о корпусе. данные считываются с параметров и отправляются
+    db.updateInfo('language', p.readLanguage(), lastID) #
+    db.updateInfo('stemType', p.readStemType(), lastID) #
+    db.updateInfo('stopWordsType', p.readStopWordsType(), lastID) #
+    db.updateInfo('metric', p.readMetric(), lastID) #
+    db.updateInfo('corpus_ID', corpusID, lastID)
+    
     
     
     analyzer = CorpusAnalyzer() # аналайзер дополняет БД оставшимися данными

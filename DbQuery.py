@@ -11,8 +11,7 @@ CREATE TABLE TopicList (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   name TEXT,
   topicNum INTEGER,
-  numOfTexts INTEGER,
-  corpus_id INTEGER NOT NULL);
+  numOfTexts INTEGER);
 """
 
     def getNewTableTexts(self):
@@ -25,8 +24,7 @@ CREATE TABLE Texts (
   baseText TEXT,
   formattedText TEXT,
   vector TEXT,
-  localDictionary TEXT,
-  corpus_id INTEGER NOT NULL);
+  localDictionary TEXT);
 """
         
     def getNewTableDictionary(self):
@@ -34,27 +32,44 @@ CREATE TABLE Texts (
 CREATE TABLE Dictionary (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   word TEXT,
-  value INTEGER,
-  corpus_id INTEGER NOT NULL);
+  value INTEGER);
+"""
+
+    def getNewTableInfo(self):
+        return """
+CREATE TABLE Info (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  language TEXT,
+  source TEXT,
+  numOfTopics INTEGER,
+  numOfTexts INTEGER,
+  dictionarySize INTEGER,
+  stemType TEXT,
+  stopWordsType TEXT,
+  metric TEXT,
+  neuralNetwork TEXT,
+  resultFull TEXT,
+  resultVal1 INTEGER,
+  resultVal2 INTEGER,
+  time TEXT,
+  corpus_id INTEGER);
 """
 
     def getNewStringMain(self):
         return """INSERT INTO Corpuses DEFAULT VALUES;"""
     
     def getNewStringTopicList(self, corpusID):
-        return """INSERT INTO TopicList (corpus_id)
-    VALUES
-    ("""+str(corpusID)+""");"""
+        return """INSERT INTO TopicList DEFAULT VALUES;"""
     
     def getNewStringTexts(self, corpusID):
-        return """INSERT INTO Texts (Corpus_id)
-    VALUES
-    ("""+str(corpusID)+""");"""
+        return """INSERT INTO Texts DEFAULT VALUES;"""
     
     def getNewStringDictionary(self, corpusID):
-        return """INSERT INTO Dictionary (Corpus_id)
-    VALUES
-    ("""+str(corpusID)+""");"""
+        return """INSERT INTO Dictionary DEFAULT VALUES;"""
+    
+    def getNewStringInfo(self, corpusID):
+        return """INSERT INTO Info DEFAULT VALUES;"""
 
     def getCountTableMain(self):
         return """SELECT COUNT(id) FROM Corpuses;"""
@@ -67,6 +82,9 @@ CREATE TABLE Dictionary (
     
     def getCountTableDictionary(self):
         return """SELECT COUNT(id) FROM Dictionary;"""
+    
+    def getCountTableInfo(self):
+        return """SELECT COUNT(id) FROM Info;"""
 
     def getUpdateMain(self, strID, strName, strVal):
         if (isinstance(strVal, int)):
@@ -99,6 +117,14 @@ CREATE TABLE Dictionary (
         else:
             return """UPDATE Dictionary SET """+strName+""" = \""""+strVal+"""\" 
     WHERE id = """+str(strID)+""";"""
+    
+    def getUpdateInfo(self, strID, strName, strVal):
+        if (isinstance(strVal, int)):
+            return """UPDATE Info SET """+strName+""" = """+str(strVal)+""" 
+    WHERE id = """+str(strID)+""";"""
+        else:
+            return """UPDATE Info SET """+strName+""" = \""""+strVal+"""\" 
+    WHERE id = """+str(strID)+""";"""
 
     def getDataMain(self, strID, strName):
         return """SELECT ("""+strName+""") FROM Corpuses WHERE id = """+str(strID)+""";"""
@@ -111,6 +137,9 @@ CREATE TABLE Dictionary (
     
     def getDataDictionary(self, strID, strName):
         return """SELECT ("""+strName+""") FROM Dictionary WHERE id = """+str(strID)+""";"""
+    
+    def getDataInfo(self, strID, strName):
+        return """SELECT ("""+strName+""") FROM Info WHERE id = """+str(strID)+""";"""
 
 if __name__ == '__main__':
     q = DbQuery()
