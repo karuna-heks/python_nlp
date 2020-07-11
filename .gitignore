@@ -1,0 +1,7 @@
+sqlTest.py
+testJson.py
+tests.py
+param.json
+
+/__pycache__/*
+/.spyproject/*
