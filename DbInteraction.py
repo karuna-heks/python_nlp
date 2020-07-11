@@ -8,7 +8,7 @@ class DbInteraction:
     connectionMain = None #параметр для хранения объекта соединения с БД всех корпусов
     connectionData = None #параметр для хранения объекта соединения с БД по одному корпусу
     q = None #экземпляр объекта класса формирующего запросы к БД
-    path = ''
+    path = '' # путь к БД
     topicListTableName = ""
     textsTableName = ""
     dictionaryTableName = ""
