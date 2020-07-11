@@ -110,19 +110,20 @@ def main():
         # <- добавление в БД локальных словарей в виде json строки
     
     
-    tempDict = d.getGlobalDictionary()
-    for key, val in tempDict.items():
-        lastID = db.addDictionary()
-        db.updateDictionary('word', key, lastID)
-        db.updateDictionary('value', val, lastID)
-        # <- добавление глобального словаря в бд, целиком
-        #!!! нужно пофиксить. работает слишком медленно
+    if p.saveDictionary == True:
+        tempDict = d.getGlobalDictionary()
+        for key, val in tempDict.items():
+            lastID = db.addDictionary()
+            db.updateDictionary('word', key, lastID)
+            db.updateDictionary('value', val, lastID)
+            # <- добавление глобального словаря в бд, целиком
+            #!!! нужно пофиксить. работает слишком медленно
        
         
         
     numberOfTopics = db.getTopicListSize()
     numberOfTexts = db.getTextsSize()
-    dictionarySize = db.getDictionarySize()
+    dictionarySize = d.getGlobalSize()
     db.updateCorpus('numOfTopics', numberOfTopics, corpusID)
     db.updateInfo('numOfTopics', numberOfTopics, 1)
     db.updateCorpus('numOfTexts', numberOfTexts, corpusID)

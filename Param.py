@@ -30,6 +30,9 @@ class Param:
     
     def readDocCorpusPath(self):
         return json.loads(self.json_param).get('docCorpusPath')
+    
+    def saveDictionary(self):
+        return json.loads(self.json_param).get('saveDictionary')
         
         
         
