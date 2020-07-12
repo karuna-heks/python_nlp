@@ -23,7 +23,8 @@ CREATE TABLE Texts (
   topicNum INTEGER,
   baseText TEXT,
   formattedText TEXT,
-  vector TEXT,
+  inputVector TEXT,
+  outputVector TEXT,
   localDictionary TEXT);
 """
         
