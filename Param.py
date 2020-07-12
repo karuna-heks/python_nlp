@@ -39,3 +39,6 @@ class Param:
 if __name__ == '__main__':
     p = Param()
     print(p.readString())
+    print(p.readName())
+    print(p.readDBCorpusPath())
+    print(p.saveDictionary())

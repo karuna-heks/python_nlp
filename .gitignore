@@ -3,5 +3,7 @@ testJson.py
 tests.py
 param.json
 
+*localtest.py
+
 /__pycache__/*
 /.spyproject/*
