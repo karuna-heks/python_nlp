@@ -141,12 +141,18 @@ def main():
         tempDict = json.loads(tempStr)
         tempArray = v.getVecFromDict(tempDict)
         tempStr = json.dumps(tempArray)
-        db.updateTexts('vector', tempStr, i+1)
+        db.updateTexts('outputVector', tempStr, i+1)
         # <- инициализация векторизатора, отправка глобального словаря в 
         # него, извлечение из бд локального словаря, преобразование 
         # его из json-строки в стандартный словарь отправка словаря 
         # в векторизатор, получение массива преобразование массива 
-        # в жсон-строку и отправка обратно в бд
+        # в json-строку и отправка обратно в бд
+        topicNum = db.getTextsData('topicNum', i+1)[0][0]
+        db.updateTexts('inputVector', 
+                       json.dumps(v.numToOutputVec(topicNum, numberOfTopics)),
+                       i+1)
+        # <- извлечение номера топика для формирования входного вектора
+        # и отправки этого вектора в БД
     
 
 

@@ -44,6 +44,7 @@ class Vectorizer:
         tempVec = []
         tempVec = [0]*size
         tempVec[num] = 1
+        return tempVec
         
     
     
