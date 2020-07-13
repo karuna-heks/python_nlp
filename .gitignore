@@ -4,6 +4,6 @@ tests.py
 param.json
 
 *localtest.py
-
+!keras_localtest.py
 /__pycache__/*
 /.spyproject/*
