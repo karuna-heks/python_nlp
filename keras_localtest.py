@@ -68,6 +68,6 @@ colour = model.predict_classes(array[:,0:2])
 
 #%%
 plt.figure(figsize=(16, 10))
-plt.scatter(array[:,0], array[:,1], marker = 'o', s = 0.1, c = colour)
+plt.scatter(array[:,0], array[:,1], marker = 'o', s = 0.5, c = colour, cmap = 'gist_rainbow_r')
 
 
