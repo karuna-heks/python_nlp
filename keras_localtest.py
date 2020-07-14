@@ -8,6 +8,9 @@ from tensorflow.keras import layers
 import numpy as np
 
 import matplotlib.pyplot as plt
+
+#%%
+
 #%%
 
 
@@ -21,7 +24,16 @@ for i in range(10):
         inputArray[j][0] = num1 + (np.random.random()-1)*0.3
         inputArray[j][1] = num2 + (np.random.random()-1)*0.3
         outputArray[j][i] = 1
-array = np.column_stack([inputArray, outputArray])
+
+ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
+# dso = tf.data.Dataset.from_tensor_slices(outputArray)
+# ds = tf.data.Dataset.zip((dsi, dso))
+
+
+
+#%%
+
+
 
 # fig, ax = plt.subplots()
 # ax.stackplot(inputArray[:,0], inputArray[:,1])
@@ -29,20 +41,27 @@ array = np.column_stack([inputArray, outputArray])
 # plt.show()
 
 #%%
-plt.scatter(array[:,0], array[:,1], marker = 'o', s = 0.01)
+plt.scatter(inputArray[:,0], inputArray[:,1], marker = 'o', s = 0.01)
 plt.show()
 
      
 #%%
-np.random.shuffle(array)
+# np.random.shuffle(array)
+ds = ds.shuffle(buffer_size=10000,
+                reshuffle_each_iteration=True)
+ds = ds.batch(10)
+ds
+
+#%%
+# n,line_batch = next(iter(ds))
+# print(n.numpy())
         
 #%%
 model = tf.keras.Sequential()
 
 model.add(layers.Dense(2, activation='relu'))
-
-model.add(layers.Dense(2, activation='relu'))
-
+model.add(layers.Dense(10, activation='relu'))
+model.add(layers.Dense(10, activation='relu'))
 model.add(layers.Dense(10, activation='softmax'))
 
 
@@ -53,21 +72,15 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
 
 
 
-results = model.fit(
-    array[0:7000,:][:,0:2], 
-    array[0:7000,:][:,2:12], 
-    epochs=10, 
-    batch_size=32,
-    validation_data = (array[7000:10000,:][:,0:2],
-                       array[7000:10000,:][:,2:12]))
+results = model.fit(ds, epochs=20)
 
 
 #%%
 
-colour = model.predict_classes(array[:,0:2])
+colour = model.predict_classes(inputArray[:,0:2])
 
 #%%
 plt.figure(figsize=(16, 10))
-plt.scatter(array[:,0], array[:,1], marker = 'o', s = 0.5, c = colour, cmap = 'gist_rainbow_r')
+plt.scatter(inputArray[:,0], inputArray[:,1], marker = 'o', s = 0.5, c = colour, cmap = 'gist_rainbow_r')
 
 
