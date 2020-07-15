@@ -23,25 +23,25 @@ class OpenTexts:
     
     
     def __init__(self, path):
-        print("OT__init__")
+        # print("OT__init__")
         self.__path = path
     
     def searchFolder(self):
-        print("OTsearchFolder")
+        # print("OTsearchFolder")
         self.__topicNameList = os.listdir(self.__path)
         self.__chooseMethod = 1
         #!!!добавить: проверка на то, что кол-во списков папок больше 0
         
-    def searchTxt(self):
-        print("OTsearchTxt")
-        #добавить: реализация метода
+    # def searchTxt(self):
+        # print("OTsearchTxt")
+        #!!!добавить: реализация метода
         
-    def searchAlt(self):
-        print("OTsearchAlt")
+    # def searchAlt(self):
+        # print("OTsearchAlt")
         #добавить: реализация метода
         
     def hasNext(self):
-        print("OThasNext")
+        # print("OThasNext")
         if self.__chooseMethod == 1:
             return self.__hasNextSearchFolder()
         elif self.__chooseMethod == 2:
@@ -52,7 +52,7 @@ class OpenTexts:
             return False
         
     def getNext(self):
-        print("OTgetNext")
+        # print("OTgetNext")
         if self.__chooseMethod == 1:
             return self.__getNextSearchFolder()
         elif self.__chooseMethod == 2:
@@ -65,7 +65,7 @@ class OpenTexts:
   
     # @private methods
     def __hasNextSearchFolder(self):
-        print("OT__hasNextSearchFolder")
+        # print("OT__hasNextSearchFolder")
         if (self.__iterTopic < 1):
             if (self.__iterText < 1):
                 self.__textNameList = os.listdir(self.__path + "/" + 
@@ -109,7 +109,7 @@ class OpenTexts:
         
     
     def __getNextSearchFolder(self):
-        print("OT__getNextSearchFoler")
+        # print("OT__getNextSearchFoler")
         if (self.__isReady):
             # инкремент счетчиков, если это разрешено
             if self.__checkIncTopic:
@@ -137,29 +137,29 @@ class OpenTexts:
     
     
     def __hasNextSearchTxt(self):
-        print("OT__hasNextSearchTxt")
-        #добавить: реализация метода
+        # print("OT__hasNextSearchTxt")
+        #!!!добавить: реализация метода
         return True
     
     def __getNextSearchTxt(self):
-        print("OT__getNextSearchTxt")
-        #добавить: реализация метода
+        # print("OT__getNextSearchTxt")
+        #!!!добавить: реализация метода
         return 0
     
     
     def __hasNextSearchAlt(self):
-        print("OT__hasNextSearchAlt")
-        #добавить: реализация метода
+        # print("OT__hasNextSearchAlt")
+        #!!!добавить: реализация метода
         return True
     
     def __getNextSearchAlt(self):
-        print("OT__getNextSearchAlt")
+        # print("OT__getNextSearchAlt")
             
-        #добавить: реализация метода
+        #!!!добавить: реализация метода
         return 0
     
     def __getText(self, topic, text):
-        print("OT__getText")
+        # print("OT__getText")
         path = self.__path + "/" + topic + "/" + text
         # f = open(path, mode = "r", encoding = "ascii",)
         f = open(path, mode = "r", encoding = "utf-8")

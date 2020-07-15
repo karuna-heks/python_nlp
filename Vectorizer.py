@@ -8,15 +8,15 @@ class Vectorizer:
     
     _globalDict = None
     
-    def __init__(self, vType = "tf"):
-        print("V__init")
+    # def __init__(self, vType = "tf"):
+        # print("V__init")
     
     def addGlobDict(self, globalDictionary):
         self._globalDict = globalDictionary
         #!!! необходимо передавать копию словаря, а не просто ссылку
     
     def getVecFromDict(self, d): 
-        print("VaddDict")
+        # print("VaddDict")
         if (self._globalDict == None):
             sys.exit("Error: Global Dictionary is not initiliazed")
         

@@ -2,8 +2,8 @@
 
 class DbQuery:
     
-    def __init__(self):
-        print("lolkek4eburek")
+    # def __init__(self):
+    #     print("lolkek4eburek")
     
     def getNewTableTopicList(self):
         return """

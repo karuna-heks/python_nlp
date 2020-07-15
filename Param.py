@@ -34,7 +34,8 @@ class Param:
     def saveDictionary(self):
         return json.loads(self.json_param).get('saveDictionary')
         
-        
+    def getTrainPercentage(self):
+        return json.loads(self.json_param).get('trainPercentage')
         
 if __name__ == '__main__':
     p = Param()

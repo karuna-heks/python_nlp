@@ -8,13 +8,13 @@ class Dictionary:
     __wordsList = None # список всех слов в тексте
     
     def __init__(self):
-        print("D__init")
+        # print("D__init")
         self.__global = {}
         self.__last = {}
     
     
     def addData(self, text):
-        print("DaddData")
+        # print("DaddData")
         self.__last.clear()
         self.__wordsList = text.split(" ")
         for word in self.__wordsList:
@@ -30,13 +30,13 @@ class Dictionary:
         #!!! - реализовать метод
     
     def getGlobalDictionary(self):
-        print("DgetFullDictionary")
+        # print("DgetFullDictionary")
         # метод возвращает глобальный словарь
         #!!! - реализовать метод
         return self.__global
     
     def getLastDictionary(self):
-        print("DgetLastDictionary")
+        # print("DgetLastDictionary")
         # метод возвращает последний локальный словарь
         #!!! - реализовать метод
         return self.__last

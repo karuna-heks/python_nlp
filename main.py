@@ -10,7 +10,6 @@ import json
 
 import tensorflow as tf
 
-from tensorflow import keras
 from tensorflow.keras import layers
 
 import numpy as np
@@ -63,8 +62,6 @@ op.searchFolder() # выбор метода для своего типа исх�
 while(op.hasNext()): # проверка на наличие следующего текста
     tempData = op.getNext() # извлечение базовой информации из 
     # файла, сохранение в словаре
-    print("tempData: ")
-    print(tempData)
     lastID = db.addTexts() # добавление новой строки в бд для 
     # информации по текстам и возврат её номера
     db.updateTexts('name', tempData['name'], lastID) # обновление 
@@ -127,16 +124,17 @@ if p.saveDictionary == True:
         #!!! нужно пофиксить. работает слишком медленно
    
     #%%
-    
-numberOfTopics = db.getTopicListSize()
-numberOfTexts = db.getTextsSize()
-dictionarySize = d.getGlobalSize()
-db.updateCorpus('numOfTopics', numberOfTopics, corpusID)
-db.updateInfo('numOfTopics', numberOfTopics, 1)
-db.updateCorpus('numOfTexts', numberOfTexts, corpusID)
-db.updateInfo('numOfTexts', numberOfTexts, 1)
-db.updateCorpus('dictionarySize', dictionarySize, corpusID)
-db.updateInfo('dictionarySize', dictionarySize, 1)
+  
+inputSize = d.getGlobalSize()
+outputSize = db.getTopicListSize()
+corpusSize = db.getTextsSize()
+
+db.updateCorpus('numOfTopics', outputSize, corpusID)
+db.updateInfo('numOfTopics', outputSize, 1)
+db.updateCorpus('numOfTexts', corpusSize, corpusID)
+db.updateInfo('numOfTexts', corpusSize, 1)
+db.updateCorpus('dictionarySize', inputSize, corpusID)
+db.updateInfo('dictionarySize', inputSize, 1)
 # <- обновление общей информации в БД (для отчетности)
 
 
@@ -148,18 +146,92 @@ for i in range(db.getTextsSize()):
     tempDict = json.loads(tempStr)
     tempArray = v.getVecFromDict(tempDict)
     tempStr = json.dumps(tempArray)
-    db.updateTexts('outputVector', tempStr, i+1)
+    db.updateTexts('inputVector', tempStr, i+1)
     # <- инициализация векторизатора, отправка глобального словаря в 
     # него, извлечение из бд локального словаря, преобразование 
     # его из json-строки в стандартный словарь отправка словаря 
     # в векторизатор, получение массива преобразование массива 
     # в json-строку и отправка обратно в бд
     topicNum = db.getTextsData('topicNum', i+1)[0][0]
-    db.updateTexts('inputVector', 
-                   json.dumps(v.numToOutputVec(topicNum, numberOfTopics)),
+    db.updateTexts('outputVector', 
+                   json.dumps(v.numToOutputVec(topicNum, outputSize)),
                    i+1)
     # <- извлечение номера топика для формирования входного вектора
     # и отправки этого вектора в БД
 #%%
 
     
+
+# цикличное извлечение данных из БД, добавление их в вектора    
+inputArray = np.zeros((corpusSize, inputSize))
+outputArray = np.zeros((corpusSize, outputSize))
+for i in range(db.getTextsSize()):
+    inputArray[i] = np.array(json.loads(
+        db.getTextsData('inputVector', i+1)[0][0]))
+    
+    outputArray[i] = np.array(json.loads(
+        db.getTextsData('outputVector', i+1)[0][0]))
+
+
+ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
+
+#%%
+
+ds = ds.shuffle(buffer_size=corpusSize,
+                reshuffle_each_iteration=True)
+trainSize = int(corpusSize*p.getTrainPercentage()/100)
+ds_train = ds.take(trainSize)
+ds_val = ds.skip(trainSize)
+ds = None
+
+ds_train = ds_train.batch(30)
+ds_val = ds_val.batch(30)
+
+#%%
+
+model = tf.keras.Sequential()
+
+model.add(layers.Dense(inputSize, activation='relu'))
+model.add(layers.Dense(20, activation='relu'))
+model.add(layers.Dense(20, activation='relu'))
+model.add(layers.Dense(outputSize, activation='softmax'))
+
+# tf.keras.backend.set_floatx('float32')
+# tf.autograph.set_verbosity(10)
+# @tf.autograph.experimental.do_not_convert()
+
+model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
+              loss=tf.keras.losses.CategoricalCrossentropy(),
+              metrics=[tf.keras.metrics.CategoricalAccuracy()])
+
+history = model.fit(ds_train,
+                    epochs=100,
+                    validation_data=ds_val)
+
+#%%
+
+
+#summarize history for accuracy
+plt.figure(figsize=(16, 10))
+plt.plot(history.history['val_categorical_accuracy'])
+plt.plot(history.history['categorical_accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['val_categorical_accuracy', 'categorical_accuracy'], loc='upper left')
+plt.grid(True)
+plt.show()
+
+#summarize history for loss
+plt.figure(figsize=(16, 10))
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['loss', 'val_loss'], loc='upper left')
+plt.grid(True)
+plt.show()
+
+
+

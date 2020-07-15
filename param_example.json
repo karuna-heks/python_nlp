@@ -1,0 +1,12 @@
+{
+    "name": "testCorpus",
+    "language": "eng",
+    "source": "myCorpusSmall",
+    "stemType": "stemming",
+    "stopWordsType": "none",
+    "metric": "tf",
+    "dbCorpusPath": "/mnt/hgfs/vmware D/dataBase/myCorpus.db",
+    "docCorpusPath": "/mnt/hgfs/vmware D/topicsSmall",
+    "trainPercentage": 70, 
+    "saveDictionary": false
+}

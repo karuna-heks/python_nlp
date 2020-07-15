@@ -19,7 +19,7 @@ class CorpusParser:
     
     def __init__(self, language = 'eng', stemType = 'stemming',
                  stopWordsType = 'default'):
-        print("CP__init")
+        # print("CP__init")
         self.__language = language
         
         if (stemType == 'stemmer' or stemType == 'stem' or 
@@ -43,7 +43,7 @@ class CorpusParser:
         
         
     def parsing(self, text):
-        print("CPparsing")
+        # print("CPparsing")
         # получаем текст
         # отправляем в токенайзер
         # получаем список
@@ -75,14 +75,14 @@ class CorpusParser:
          
         
     # @private methods
-    def __stemmer(self, wordList):
-        print("CP__stemmer")
+    # def __stemmer(self, wordList):
+        # print("CP__stemmer")
     
-    def __lemmatizer(self, wordList):
-        print("CP__lemmatizer")
+    # def __lemmatizer(self, wordList):
+        # print("CP__lemmatizer")
         
     def __tokenizer(self, text):
-        print("CP__tokenizer")
+        # print("CP__tokenizer")
         text = text.lower()
         if self.__language == 'eng':
             text = re.sub(r"[^a-z]+", " ", text)
@@ -105,7 +105,7 @@ class CorpusParser:
 
     
     def __deleteStopWords(self, wordList):
-        print("CP__deleteStopWords")
+        # print("CP__deleteStopWords")
         #!!! скорее всего, это медленный метод. нужно оптимизировать
         for word in self.__stopList:
             for i in range(wordList.count(word)):
@@ -115,11 +115,12 @@ class CorpusParser:
         
             
     def __initStopWords(self):
-        print("CP__initStopWords")
+        # print("CP__initStopWords")
         if (self.__language == 'eng' or self.__language == 'mul'):
             stopListEng = ['and', 'the', 'if', 'how', 'that', 
-                              'then', 'those', 'this', 'those',
-                              'can', 'be', 'will', 'would']
+                              'then', 'those', 'this', 'those', 'it',
+                              'can', 'be', 'will', 'would', 'for',
+                              'are', 'as', 'is', 'to', 'of', 'with']
             self.__stopList.extend(stopListEng)
         if (self.__language == 'rus' or self.__language == 'mul'):
             stopListRus = ['а', 'или', 'и', 'в', 'у', 'к',
@@ -127,6 +128,7 @@ class CorpusParser:
                                   'тот', 'те', 'их']
             self.__stopList.extend(stopListRus)
         #!!! дополнить список стоп-слов для обоих языков
+        # и/или использовать инструменты из NLTK
                               
                           
         

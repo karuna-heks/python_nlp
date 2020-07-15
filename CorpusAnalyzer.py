@@ -12,12 +12,12 @@ class CorpusAnalyzer:
     _topicListOfNames = [] # список с именами текстов по их порядковым номерам
     #!!! <- не лучшее решение иметь 2 списка одинаковых, нужно как-то исправить
     
-    def __init__(self):
-        print("CA__init")
+    # def __init__(self):
+        # print("CA__init")
         
     
     def addTopicName(self, name):
-        print("CAaddTopicName")
+        # print("CAaddTopicName")
         if self._topicNames.get(name) == None:
             lastTopicNum = len(self._topicNames)
             self._topicNames[name] = lastTopicNum
@@ -33,25 +33,25 @@ class CorpusAnalyzer:
         # если такой элемент уже есть, то просто обновляет их значения
         
     def getTopicNum(self, name):
-        print("CAgetTopicNum")
+        # print("CAgetTopicNum")
         return self._topicNames[name]
         # <- метод возвращает порядковый номер имени топика
     
     def getList(self):
-        print("CAgetList")
+        # print("CAgetList")
         return self._topicNames
     
     def getTopicCount(self, name):
-        print("CAgetTopicCount")
+        # print("CAgetTopicCount")
         return self._topicNumOfTexts[self._topicNames[name]]
         # <- метод возвращает количество топиков на тему name
     
     def getNumOfTopics(self):
-        print("CAgetNumOfTopics")
+        # print("CAgetNumOfTopics")
         return len(self._topicNumOfTexts)
     
     def getTopicName(self, number):
-        print("CAgetTopicName")
+        # print("CAgetTopicName")
         return self._topicListOfNames[number]
         
     
