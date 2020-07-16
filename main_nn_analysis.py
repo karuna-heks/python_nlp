@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #%%
-pathToDB = '/mnt/hgfs/vmware D/dataBase/27.db'
+
 
 t = time.localtime()
 compilationTime = "{0}.{1}.{2} {3}:{4}".format(t.tm_year, t.tm_mon, 
@@ -18,7 +18,7 @@ compilationTime = "{0}.{1}.{2} {3}:{4}".format(t.tm_year, t.tm_mon,
 
 p = Param() #инициализация класса с параметрами работы
 
-
+pathToDB = p.getPathToDBForReport()
 db = DbInteraction() #иниц. класса для работы с БД
 db.initNNAnalysis(pathToDB) # отправка в него пути к БД
 db.addInfo() # добавить новую строку

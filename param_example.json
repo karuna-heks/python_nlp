@@ -8,5 +8,6 @@
     "dbCorpusPath": "/mnt/hgfs/vmware D/dataBase/myCorpus.db",
     "docCorpusPath": "/mnt/hgfs/vmware D/topicsSmall",
     "trainPercentage": 70, 
-    "saveDictionary": false
+    "saveDictionary": false,
+    "pathToDBForReport": "/mnt/hgfs/vmware D/dataBase/27.db"
 }

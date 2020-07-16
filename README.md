@@ -26,6 +26,6 @@ in *param.json*:
     "saveDictionary": false
 ```
 
-For a complete analysis of the corpus, you can run the *main.py* or *main.jj* file
-For neural network analysis of the corpus based on input vectors, you /
-can run the file *main_nn_analysis.py* or *main_nn_analysis.jj*
+For a complete analysis of the corpus, you can run the *main.py* or *main.jj* file.
+
+For neural network analysis of the corpus based on input vectors, you can run the file *main_nn_analysis.py* or *main_nn_analysis.jj*

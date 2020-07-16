@@ -36,6 +36,9 @@ class Param:
         
     def getTrainPercentage(self):
         return json.loads(self.json_param).get('trainPercentage')
+    
+    def getPathToDBForReport(self):
+        return json.loads(self.json_param).get('pathToDBForReport')
         
 if __name__ == '__main__':
     p = Param()
