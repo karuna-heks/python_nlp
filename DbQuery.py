@@ -63,16 +63,16 @@ CREATE TABLE Info (
     def getNewStringMain(self):
         return """INSERT INTO Corpuses DEFAULT VALUES;"""
     
-    def getNewStringTopicList(self, corpusID):
+    def getNewStringTopicList(self):
         return """INSERT INTO TopicList DEFAULT VALUES;"""
     
-    def getNewStringTexts(self, corpusID):
+    def getNewStringTexts(self):
         return """INSERT INTO Texts DEFAULT VALUES;"""
     
-    def getNewStringDictionary(self, corpusID):
+    def getNewStringDictionary(self):
         return """INSERT INTO Dictionary DEFAULT VALUES;"""
     
-    def getNewStringInfo(self, corpusID):
+    def getNewStringInfo(self):
         return """INSERT INTO Info DEFAULT VALUES;"""
 
     def getCountTableMain(self):

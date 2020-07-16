@@ -13,8 +13,8 @@ class DbInteraction:
     textsTableName = ""
     dictionaryTableName = ""
     
-    def __init__(self, path):
-        # print("dbInteraction init")
+        
+    def initFullAnalysis(self, path):
         self.path = path
         self.q = DbQuery()
         self.connectionMain = self.getConnect(path)
@@ -27,6 +27,11 @@ class DbInteraction:
         #создать соединение с файлом БД для корпуса, сохранить его
         #создать основные таблицы в файле БД для корпуса
         
+    def initNNAnalysis(self, path):
+        self.connectionData = self.getConnect(path)
+        self.q = DbQuery()
+        # выполнить инициализацию для работы с файлом данных для обучения
+        # сети
         
     def addCorpus(self):
         # print("dbAddCorpus")
@@ -77,7 +82,7 @@ class DbInteraction:
     def addTopicList(self):
         # print("dbTopicList")
         self.sendQuery(self.connectionData, 
-                       self.q.getNewStringTopicList(self.corpusID))
+                       self.q.getNewStringTopicList())
         return self.readQuery(self.connectionData, 
                               self.q.getCountTableTopicList())[0][0]
         #+ отправить команду на добавление строки непустой
@@ -88,7 +93,7 @@ class DbInteraction:
     def addTexts(self):
         # print("dbAddTexts")
         self.sendQuery(self.connectionData, 
-                       self.q.getNewStringTexts(self.corpusID))
+                       self.q.getNewStringTexts())
         return self.readQuery(self.connectionData, 
                               self.q.getCountTableTexts())[0][0]
         #+ отправить команду на добавление строки непустой
@@ -99,7 +104,7 @@ class DbInteraction:
     def addDictionary(self):
         # print("bdAddTexts")
         self.sendQuery(self.connectionData, 
-                       self.q.getNewStringDictionary(self.corpusID))
+                       self.q.getNewStringDictionary())
         return self.readQuery(self.connectionData, 
                               self.q.getCountTableDictionary())[0][0]
         #+ отправить команду на добавление строки непустой
@@ -109,7 +114,7 @@ class DbInteraction:
     def addInfo(self):
         # print("bdAddTexts")
         self.sendQuery(self.connectionData, 
-                       self.q.getNewStringInfo(self.corpusID))
+                       self.q.getNewStringInfo())
         return self.readQuery(self.connectionData, 
                               self.q.getCountTableInfo())[0][0]
         #+ отправить команду на добавление строки непустой
@@ -215,9 +220,8 @@ class DbInteraction:
     def sendQuery(self, connection, q):
         #+метод выполняющий конкретный запрос в БД
         # print("dbSendQuery")
-        tempStr = q
         # print("q:")
-        # print(tempStr)
+        # print(q)
         cursor = connection.cursor()
         try:
             cursor.execute(q)

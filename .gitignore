@@ -7,3 +7,4 @@ param.json
 !keras_localtest.py
 /__pycache__/*
 /.spyproject/*
+/savedModels/*

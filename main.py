@@ -7,11 +7,8 @@ from Vectorizer import Vectorizer
 from CorpusAnalyzer import CorpusAnalyzer
 import time
 import json
-
 import tensorflow as tf
-
 from tensorflow.keras import layers
-
 import numpy as np
 import matplotlib.pyplot as plt
 #%%
@@ -25,7 +22,8 @@ compilationTime = "{0}.{1}.{2} {3}:{4}".format(t.tm_year, t.tm_mon,
                                                t.tm_min)
 
 p = Param() #инициализация класса с параметрами работы
-db = DbInteraction(p.readDBCorpusPath()) #иниц. класса для работы с БД
+db = DbInteraction() #иниц. класса для работы с БД
+db.initFullAnalysis(p.readDBCorpusPath()) #иниц. класса для работы с БД
 # отправка в него пути к БД
 corpusID = db.getCorpusID() #сохранение актуального ID, который
 # является индексом строки в БД
@@ -196,9 +194,6 @@ model.add(layers.Dense(20, activation='relu'))
 model.add(layers.Dense(20, activation='relu'))
 model.add(layers.Dense(outputSize, activation='softmax'))
 
-# tf.keras.backend.set_floatx('float32')
-# tf.autograph.set_verbosity(10)
-# @tf.autograph.experimental.do_not_convert()
 
 model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
               loss=tf.keras.losses.CategoricalCrossentropy(),
