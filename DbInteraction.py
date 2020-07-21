@@ -1,6 +1,7 @@
 import sqlite3
 from sqlite3 import Error
 from DbQuery import DbQuery
+import json
 
 class DbInteraction:
     
@@ -12,6 +13,7 @@ class DbInteraction:
     topicListTableName = ""
     textsTableName = ""
     dictionaryTableName = ""
+    dataCorpusName = ""
     
         
     def initFullAnalysis(self, path):
@@ -210,7 +212,7 @@ class DbInteraction:
         # print("dbConnectCorpus")
         connection = None
         try:
-            connection = sqlite3.connect(path)
+            connection = sqlite3.connect(path, check_same_thread=False)
             # print("Connection to SQLite DB successful")
         except Error as e:
             print(f"The error '{e}' occured")
@@ -248,7 +250,8 @@ class DbInteraction:
         # print("dbNewDataPath")
         #+метод подменяет в старом пути к бд имя бд на новое имя (без .db)
         oldPath = oldPath.rsplit('/', maxsplit=1)
-        return oldPath[0]+r'/'+corpusID
+        self.dataCorpusName = oldPath[0]+r'/'+corpusID
+        return self.dataCorpusName
         
     
     def getCorpusID(self):
@@ -269,6 +272,72 @@ class DbInteraction:
     def getInfoSize(self):
         return self.readQuery(self.connectionData, 
                               self.q.getCountTableInfo())[0][0]
+    
+    def iterTopicList(self, strName):
+        tableSize = self.getTopicListSize()
+        for i in range(tableSize):
+            yield self.readQuery(self.connectionData, 
+                              self.q.getDataTopicList(i+1, strName))[0][0]
+        # <- итератор для перебора столбца strName элементов БД TopicList
+            
+    # def iterTexts(self, strName):
+    #     tableSize = self.getTextsSize()
+    #     for i in range(tableSize):
+    #         yield self.readQuery(self.connectionData, 
+    #                           self.q.getDataTexts(i+1, strName))[0][0]
+    #     # <- итератор для перебора столбца strName элементов БД Texts
+     
+    class generator:
+        def __init__(self, size, path, strName1, strName2):
+            self.q = DbQuery()
+            self.size = size
+            self.db2 = DbInteraction()
+            self.db2.initNNAnalysis(path)
+            self.s1 = strName1
+            self.s2 = strName2
+            
+        def __call__(self):
+            print('strName1')
+            print(self.s1)
+            for i in range(self.size):
+                if (self.s2 == None):
+                    yield self.db2.readQuery(self.db2.getConnectionData(),
+                                       self.q.getDataTexts(i+1, self.s1))[0][0] #!!! доп
+                else:
+                    yield (json.loads(self.db2.getTextsData(self.s1, i+1)[0][0]),
+                       json.loads(self.db2.getTextsData(self.s2, i+1)[0][0]))
+    #!!! test!!!
+    # def iterTexts(self, strName1=None, strName2=None, tableSize=0, c=None):
+        # return generator
+        # <- итератор для перебора столбца strName элементов БД Texts
+            
+    # def iterDictionary(self, strName):
+    #     tableSize = self.getTextsSize()
+    #     for i in range(tableSize):
+    #         yield self.readQuery(self.connectionData, 
+    #                           self.q.getDataDictionary(i+1, strName))[0][0]
+    #     # <- итератор для перебора столбца strName элементов БД Dictionary
+       
+    def getConnectionData(self):
+        return self.connectionData
+        
+    #!!! test!!!
+    def iterDictionary(self, strName1=None, strName2=None):
+        tableSize = self.getTextsSize()
+        for i in range(tableSize):
+            if (strName2 == None):
+                yield self.readQuery(self.connectionData, 
+                              self.q.getDataDictionary(i+1, strName1))[0][0]
+            else:
+                yield (self.readQuery(self.connectionData, 
+                              self.q.getDataDictionary(i+1, strName1))[0][0],
+                       self.readQuery(self.connectionData, 
+                              self.q.getDataDictionary(i+1, strName2))[0][0])
+        # <- итератор для перебора столбца strName элементов БД Dictionary
+
+    def getDataCorpusName(self):
+        return self.dataCorpusName
+
 
 if __name__ == '__main__':
     db = DbInteraction()

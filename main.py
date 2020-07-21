@@ -46,7 +46,7 @@ db.updateInfo('metric', p.readMetric(), 1)
 db.updateInfo('corpus_ID', corpusID, 1)
 db.updateInfo('compilationTime', compilationTime, 1)
 
-   #%% 
+   
 
 analyzer = CorpusAnalyzer() # аналайзер дополняет БД оставшимися данными
 
@@ -74,7 +74,7 @@ while(op.hasNext()): # проверка на наличие следующего
     # отправляет имена в БД, для отчётности и для дальнейшего формирования
     # выходного вектора.
     
-  #%%  
+   
     
 for name, val, i in zip(analyzer.getList().keys(), 
                      analyzer.getList().values(),
@@ -100,7 +100,7 @@ for i in range(db.getTextsSize()):
 # забираются сырые тексты, отправляются на очистку
 # возвращаются тексты после фильтрации и отправляются в БД обратно
 
-#%%
+
 
 d = Dictionary()
 for i in range(db.getTextsSize()):
@@ -121,7 +121,7 @@ if p.saveDictionary == True:
         # <- добавление глобального словаря в бд, целиком
         #!!! нужно пофиксить. работает слишком медленно
    
-    #%%
+    
   
 inputSize = d.getGlobalSize()
 outputSize = db.getTopicListSize()
@@ -136,7 +136,7 @@ db.updateInfo('dictionarySize', inputSize, 1)
 # <- обновление общей информации в БД (для отчетности)
 
 
-#%%
+
 v = Vectorizer()
 v.addGlobDict(d.getGlobalDictionary())
 for i in range(db.getTextsSize()):
@@ -157,9 +157,40 @@ for i in range(db.getTextsSize()):
     # <- извлечение номера топика для формирования входного вектора
     # и отправки этого вектора в БД
 #%%
+#!!! извлечение данных из генератора данных
+c = db.getConnectionData()
+ds = tf.data.Dataset.from_generator(
+    db.generator(corpusSize, db.getDataCorpusName(), 'inputVector', 'outputVector'),
+    output_types=(tf.float64, tf.float64))
+#%%
+def calculation(inputVector, outputVector):
+    print(inputVector)
+    print(outputVector)
+    print(len(inputVector))
+    data1 = json.loads(inputVector)
+    data2 = json.loads(outputVector)
+    print(data1)
+    print(data2)
+    return (data1, data2)
+ds = ds.shuffle(30, reshuffle_each_iteration=True)
+ds = ds.batch(2)
+for next_el in ds:
+    tf.print(next_el)
+# a1 = aaa.numpy()
+
+# a1 = aaa.numpy()[0]
+# a2 = json.loads(a1)
+# tf.dtypes.as_string
+#%%    
+
+#%%
+    
+ds = ds.batch(30)
+ds = ds.prefetch(5)
+# ds = ds.map(calculation)
 
     
-
+#%%
 # цикличное извлечение данных из БД, добавление их в вектора    
 inputArray = np.zeros((corpusSize, inputSize))
 outputArray = np.zeros((corpusSize, outputSize))
@@ -172,6 +203,8 @@ for i in range(db.getTextsSize()):
 
 
 ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
+del inputArray
+del outputArray
 
 #%%
 
