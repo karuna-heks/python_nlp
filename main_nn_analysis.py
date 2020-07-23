@@ -11,10 +11,7 @@ import matplotlib.pyplot as plt
 #%%
 
 
-t = time.localtime()
-compilationTime = "{0}.{1}.{2} {3}:{4}".format(t.tm_year, t.tm_mon, 
-                                               t.tm_mday, t.tm_hour, 
-                                               t.tm_min)
+
 
 p = Param() #инициализация класса с параметрами работы
 
@@ -26,6 +23,10 @@ actualNumberOfData = db.getInfoSize() # узнать номер последне
 
 
 #%%
+t = time.localtime()
+compilationTime = "{0}.{1}.{2} {3}:{4}".format(t.tm_year, t.tm_mon, 
+                                               t.tm_mday, t.tm_hour, 
+                                               t.tm_min)
 inputSize = db.getInfoData('dictionarySize', 1)[0][0]
 outputSize = db.getInfoData('numOfTopics', 1)[0][0]
 corpusSize = db.getInfoData('numOfTexts', 1)[0][0]
