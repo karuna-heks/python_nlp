@@ -297,8 +297,6 @@ class DbInteraction:
             self.s2 = strName2
             
         def __call__(self):
-            print('strName1')
-            print(self.s1)
             for i in range(self.size):
                 if (self.s2 == None):
                     yield self.db2.readQuery(self.db2.getConnectionData(),

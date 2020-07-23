@@ -161,50 +161,46 @@ for i in range(db.getTextsSize()):
 c = db.getConnectionData()
 ds = tf.data.Dataset.from_generator(
     db.generator(corpusSize, db.getDataCorpusName(), 'inputVector', 'outputVector'),
-    output_types=(tf.float64, tf.float64))
-#%%
-def calculation(inputVector, outputVector):
-    print(inputVector)
-    print(outputVector)
-    print(len(inputVector))
-    data1 = json.loads(inputVector)
-    data2 = json.loads(outputVector)
-    print(data1)
-    print(data2)
-    return (data1, data2)
-ds = ds.shuffle(30, reshuffle_each_iteration=True)
-ds = ds.batch(2)
-for next_el in ds:
-    tf.print(next_el)
+    output_types=(tf.float64, tf.float64),
+    output_shapes=(tf.TensorShape((inputSize, )), tf.TensorShape((outputSize, ))))
+    # <- использование генератора, который содержит весь набор данных и 
+    # извлекает их, по необходимости
+
+# def calculation(inputVector, outputVector):
+#     print(inputVector)
+#     print(outputVector)
+#     print(len(inputVector))
+#     data1 = np.array([json.loads(inputVector.eval()[0])])
+#     data2 = np.array([json.loads(outputVector.eval()[0])])
+#     print(data1)
+#     print(data2)
+#     return (inputVector, outputVector)
+# ds = ds.shuffle(buffer_size=30, reshuffle_each_iteration=True)
+# ds = ds.batch(32)
+# ds = ds.map(calculation)
+# for next_el in ds:
+#     tf.print(next_el)
 # a1 = aaa.numpy()
 
 # a1 = aaa.numpy()[0]
 # a2 = json.loads(a1)
-# tf.dtypes.as_string
-#%%    
-
-#%%
-    
-ds = ds.batch(30)
-ds = ds.prefetch(5)
-# ds = ds.map(calculation)
-
+# tf.dtypes.as_string    Tensor("args_0:0", dtype=float64)
     
 #%%
 # цикличное извлечение данных из БД, добавление их в вектора    
-inputArray = np.zeros((corpusSize, inputSize))
-outputArray = np.zeros((corpusSize, outputSize))
-for i in range(db.getTextsSize()):
-    inputArray[i] = np.array(json.loads(
-        db.getTextsData('inputVector', i+1)[0][0]))
+# inputArray = np.zeros((corpusSize, inputSize))
+# outputArray = np.zeros((corpusSize, outputSize))
+# for i in range(db.getTextsSize()):
+#     inputArray[i] = np.array(json.loads(
+#         db.getTextsData('inputVector', i+1)[0][0]))
     
-    outputArray[i] = np.array(json.loads(
-        db.getTextsData('outputVector', i+1)[0][0]))
+#     outputArray[i] = np.array(json.loads(
+#         db.getTextsData('outputVector', i+1)[0][0]))
 
 
-ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
-del inputArray
-del outputArray
+# ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
+# del inputArray
+# del outputArray
 
 #%%
 
@@ -214,10 +210,15 @@ trainSize = int(corpusSize*p.getTrainPercentage()/100)
 ds_train = ds.take(trainSize)
 ds_val = ds.skip(trainSize)
 ds = None
-
 ds_train = ds_train.batch(30)
 ds_val = ds_val.batch(30)
 
+# heh = 1
+# for next_el in ds_train:
+#     tf.print(next_el)
+#     heh = next_el
+# for next_el in ds_val:
+#     tf.print(next_el)
 #%%
 
 model = tf.keras.Sequential()
@@ -227,11 +228,10 @@ model.add(layers.Dense(20, activation='relu'))
 model.add(layers.Dense(20, activation='relu'))
 model.add(layers.Dense(outputSize, activation='softmax'))
 
-
 model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
               loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
-
+#%%
 history = model.fit(ds_train,
                     epochs=100,
                     validation_data=ds_val)

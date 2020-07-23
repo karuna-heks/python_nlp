@@ -30,19 +30,27 @@ inputSize = db.getInfoData('dictionarySize', 1)[0][0]
 outputSize = db.getInfoData('numOfTopics', 1)[0][0]
 corpusSize = db.getInfoData('numOfTexts', 1)[0][0]
 
-
+#%%
 # цикличное извлечение данных из БД, добавление их в вектора    
-inputArray = np.zeros((corpusSize, inputSize))
-outputArray = np.zeros((corpusSize, outputSize))
-for i in range(corpusSize):
-    inputArray[i] = np.array(json.loads(
-        db.getTextsData('inputVector', i+1)[0][0]))
+# inputArray = np.zeros((corpusSize, inputSize))
+# outputArray = np.zeros((corpusSize, outputSize))
+# for i in range(corpusSize):
+#     inputArray[i] = np.array(json.loads(
+#         db.getTextsData('inputVector', i+1)[0][0]))
     
-    outputArray[i] = np.array(json.loads(
-        db.getTextsData('outputVector', i+1)[0][0]))
+#     outputArray[i] = np.array(json.loads(
+#         db.getTextsData('outputVector', i+1)[0][0]))
 
 
-ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
+# ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
+#%% #!!! test generator 
+c = db.getConnectionData()
+ds = tf.data.Dataset.from_generator(
+    db.generator(corpusSize, db.getDataCorpusName(), 'inputVector', 'outputVector'),
+    output_types=(tf.float64, tf.float64),
+    output_shapes=(tf.TensorShape((inputSize, )), tf.TensorShape((outputSize, ))))
+
+
 
 #%%
 
