@@ -30,7 +30,8 @@ class DbInteraction:
         #создать основные таблицы в файле БД для корпуса
         
     def initNNAnalysis(self, path):
-        self.connectionData = self.getConnect(path)
+        self.dataCorpusName = path
+        self.connectionData = self.getConnect(self.dataCorpusName)
         self.q = DbQuery()
         # выполнить инициализацию для работы с файлом данных для обучения
         # сети
@@ -74,10 +75,10 @@ class DbInteraction:
     
     def addBaseDataTables(self, connectionData):
         # print("dbAddBaseDataTables: {0}".format(connectionData))
-        self.addTableTopicList(self.connectionData)
-        self.addTableTexts(self.connectionData)
-        self.addTableDictionary(self.connectionData)
-        self.addTableInfo(self.connectionData)
+        self.addTableTopicList(connectionData)
+        self.addTableTexts(connectionData)
+        self.addTableDictionary(connectionData)
+        self.addTableInfo(connectionData)
         #+вызов методов добавления таблиц в бд для полных данных корпуса (myData.bd)
         
         
