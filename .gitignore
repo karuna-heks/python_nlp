@@ -8,3 +8,4 @@ param.json
 /__pycache__/*
 /.spyproject/*
 /savedModels/*
+*/.ipynb_checkpoints*

@@ -2,8 +2,11 @@ import json
 
 class Param:
     
-    def __init__(self):
-        f = open('param.json', 'r')
+    def __init__(self, path=None):
+        if path==None:
+            f = open('param.json', 'r')
+        else:
+            f = open(path, 'r')
         self.json_param = f.read()
         f.close()
     

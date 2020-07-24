@@ -80,7 +80,7 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
 
 startTime = time.time() 
 history = model.fit(ds_train,
-                    epochs=20,
+                    epochs=100,
                     validation_data=ds_val)
 endTime = time.time() 
 #%%
