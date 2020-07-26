@@ -233,7 +233,7 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
 #%%
 history = model.fit(ds_train,
-                    epochs=100,
+                    epochs=20,
                     validation_data=ds_val)
 
 #%%

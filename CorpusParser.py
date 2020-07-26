@@ -1,4 +1,14 @@
-# -*- coding: utf-8 -*-
+"""
+CorpusParser - файл, содержащий методы и классы для парсинга 
+исходных текстов:
+    1. Разбивка текста на отдельные токены (слова)
+    2. Удаление стоп-слов
+    3. Выполнение операции стемминга/лемматизации
+Обработка рассчитана на тексты, написанные кириллицей и/или латиницей
+
+Параметры, которые используются классом CorpusParser задаются при
+инициализации класса
+"""
 import re
 from nltk.stem import PorterStemmer
 import sys
@@ -6,40 +16,40 @@ import sys
 
 class CorpusParser:
     
-    __tempWordList = None # список слов в тексте
-    __stopList = [] # список стоп-слов
-    __stopListEng = []
-    __stopListRus = []
-    __ps = None # porter Stemmer
+    _tempWordList = None # список слов в тексте
+    _stopList = [] # список стоп-слов
+    _stopListEng = []
+    _stopListRus = []
+    _ps = None # porter Stemmer
     
     #@ params
-    __language = None
-    __stemType = None
-    __stopWordsType = None
+    _language = None
+    _stemType = None
+    _stopWordsType = None
     
     def __init__(self, language = 'eng', stemType = 'stemming',
                  stopWordsType = 'default'):
         # print("CP__init")
-        self.__language = language
+        self._language = language
         
         if (stemType == 'stemmer' or stemType == 'stem' or 
             stemType == 'stemming'):
-            self.__stemType = 'stem'
-            self.__ps = PorterStemmer()
+            self._stemType = 'stem'
+            self._ps = PorterStemmer()
         elif (stemType == 'lemmatization' or stemType == 'lemmatizing' or 
             stemType == 'lemma'):
-            self.__stemType = 'lemma'
+            self._stemType = 'lemma'
         elif (stemType == 'none' or stemType == 'no' or stemType == 'not' or
               stemType == 'n'):
-            self.__stemType = 'none'
+            self._stemType = 'none'
         else:
-            self.__stemType = 'stem'
-            self.__ps = PorterStemmer()
+            self._stemType = 'stem'
+            self._ps = PorterStemmer()
             
         if (stopWordsType == 'default'):
-            self.__stopWordsType = 'default'
+            self._stopWordsType = 'default'
             #!!! продумать логику использования параметра стопВордс
-            self.__initStopWords()
+            self._initStopWords()
         
         
     def parsing(self, text):
@@ -51,25 +61,25 @@ class CorpusParser:
         # отправляем список в стеммер/лемматизатор
         # возвращаем текст
         
-        self.__tempWordList = self.__tokenizer(text)
+        self._tempWordList = self._tokenizer(text)
         
-        if (self.__stopWordsType == 'default'):
+        if (self._stopWordsType == 'default'):
             #!!! продумать логику использования параметра стопВордс
-            self.__tempWordList = self.__deleteStopWords(self.__tempWordList)
+            self._tempWordList = self._deleteStopWords(self._tempWordList)
         
-        if (self.__stemType == 'stem'):
+        if (self._stemType == 'stem'):
             tempList = []
-            for w in self.__tempWordList:
-                tempList.append(self.__ps.stem(w))
-            self.__tempWordList = tempList
+            for w in self._tempWordList:
+                tempList.append(self._ps.stem(w))
+            self._tempWordList = tempList
             # <- создание списка. наполнение списка словами после стемминга
             #!!! добавить мультиязычность (пока только англ)
-        elif (self.__stemType == 'lemma'):
+        elif (self._stemType == 'lemma'):
             print("lemma")
             #!!! реализовать лемматизацию мультиязычную
              
             
-        return " ".join(self.__tempWordList)
+        return " ".join(self._tempWordList)
         
         
          
@@ -81,14 +91,14 @@ class CorpusParser:
     # def __lemmatizer(self, wordList):
         # print("CP__lemmatizer")
         
-    def __tokenizer(self, text):
+    def _tokenizer(self, text):
         # print("CP__tokenizer")
         text = text.lower()
-        if self.__language == 'eng':
+        if self._language == 'eng':
             text = re.sub(r"[^a-z]+", " ", text)
-        elif self.__language == 'rus':
+        elif self._language == 'rus':
             text = re.sub(r"[^а-яё]+", " ", text)
-        elif self.__language == 'mul':
+        elif self._language == 'mul':
             text = re.sub(r"[^a-zа-яё]+", " ", text)
         else:
             sys.exit("Error: unknown language")
@@ -104,29 +114,29 @@ class CorpusParser:
         return text.split(" ")
 
     
-    def __deleteStopWords(self, wordList):
+    def _deleteStopWords(self, wordList):
         # print("CP__deleteStopWords")
         #!!! скорее всего, это медленный метод. нужно оптимизировать
-        for word in self.__stopList:
+        for word in self._stopList:
             for i in range(wordList.count(word)):
                 wordList.remove(word)
         return wordList
     
         
             
-    def __initStopWords(self):
+    def _initStopWords(self):
         # print("CP__initStopWords")
-        if (self.__language == 'eng' or self.__language == 'mul'):
+        if (self._language == 'eng' or self._language == 'mul'):
             stopListEng = ['and', 'the', 'if', 'how', 'that', 
                               'then', 'those', 'this', 'those', 'it',
                               'can', 'be', 'will', 'would', 'for',
                               'are', 'as', 'is', 'to', 'of', 'with']
-            self.__stopList.extend(stopListEng)
-        if (self.__language == 'rus' or self.__language == 'mul'):
+            self._stopList.extend(stopListEng)
+        if (self._language == 'rus' or self._language == 'mul'):
             stopListRus = ['а', 'или', 'и', 'в', 'у', 'к',
                                   'от', 'под', 'над', 'этот', 
                                   'тот', 'те', 'их']
-            self.__stopList.extend(stopListRus)
+            self._stopList.extend(stopListRus)
         #!!! дополнить список стоп-слов для обоих языков
         # и/или использовать инструменты из NLTK
                               
