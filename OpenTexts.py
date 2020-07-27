@@ -1,5 +1,5 @@
 """
-27.07.2020 v0.1.3
+27.07.2020 v0.1.4
 OpenTexts - файл, содержащий класс для открытия текстовых файлов, считывания
 текстов. Позволяет работать со следующей структурой файлов:
     - исходная папка содержит n других папок. каждая папка является сборником
@@ -25,79 +25,74 @@ import sys
 
 class OpenTexts:
     
-    __path = ''
-    __tempData = {'name': '', 
+    _path = ''
+    _tempData = {'name': '', 
                 'topicName': '',
                 'baseText': ''}
-    __topicNameList = None # список с именами топиков (тем)
-    __textNameList = None # список с именами текстов конкретной темы
+    _topicNameList = None # список с именами топиков (тем)
+    _textNameList = None # список с именами текстов конкретной темы
     
-    __chooseMethod = 0 #0 - none, 1-searchFoler, 2-searchTxt, 3-searchAlt
+    _chooseMethod = 0 #0 - none, 1-searchFoler, 2-searchTxt, 3-searchAlt
     
-    __iterTopic = 0 #iterator 1 - topics
-    __iterText = 0 #iterator 2 - texts
+    _iterTopic = 0 #iterator 1 - topics
+    _iterText = 0 #iterator 2 - texts
     
-    __isReady = False # статус прохождения проверки на наличие следующего 
+    _isReady = False # статус прохождения проверки на наличие следующего 
     # текста
-    __checkIncTopic = False # проверка разрешения на инкремент номера темы
-    __checkIncText = False # проверка разрешения на инкремент номера текста
+    _checkIncTopic = False # проверка разрешения на инкремент номера темы
+    _checkIncText = False # проверка разрешения на инкремент номера текста
     
     
     def __init__(self, path):
-        self.__path = path
+        self._path = path
     
     def searchFolder(self):
-        self.__topicNameList = os.listdir(self.__path)
-        self.__chooseMethod = 1
+        self._topicNameList = os.listdir(self._path)
+        self._chooseMethod = 1
         #!!!добавить: проверка на то, что кол-во списков папок больше 0
         
     # def searchTxt(self):
-        # print("OTsearchTxt")
         #!!!добавить: реализация метода
         
     # def searchAlt(self):
-        # print("OTsearchAlt")
         #добавить: реализация метода
         
     def hasNext(self):
-        # print("OThasNext")
-        if self.__chooseMethod == 1:
-            return self.__hasNextSearchFolder()
-        elif self.__chooseMethod == 2:
-            return self.__hasNextSearchTxt()
-        elif self.__chooseMethod == 3:
-            return self.__hasNextSearchAlt()
+        if self._chooseMethod == 1:
+            return self._hasNextSearchFolder()
+        elif self._chooseMethod == 2:
+            return self._hasNextSearchTxt()
+        elif self._chooseMethod == 3:
+            return self._hasNextSearchAlt()
         else: 
             return False
         
     def getNext(self):
-        # print("OTgetNext")
-        if self.__chooseMethod == 1:
+        if self._chooseMethod == 1:
             return self.__getNextSearchFolder()
-        elif self.__chooseMethod == 2:
+        elif self._chooseMethod == 2:
             return self.__getNextSearchTxt()
-        elif self.__chooseMethod == 3:
-            return self.__getNextSearchAlt()
+        elif self._chooseMethod == 3:
+            return self._getNextSearchAlt()
         else: 
             return False
   
   
     # @private methods
     def __hasNextSearchFolder(self):
-        # print("OT__hasNextSearchFolder")
-        if (self.__iterTopic < 1):
-            if (self.__iterText < 1):
-                self.__textNameList = os.listdir(self.__path + "/" + 
-                             self.__topicNameList[self.__iterTopic])
+        if (self._iterTopic < 1):
+            if (self._iterText < 1):
+                self._textNameList = os.listdir(self._path + "/" + 
+                             self._topicNameList[self._iterTopic])
         # <- проверка на то, что счетчик пройденных топиков меньше 1
         # что означает, что отсчет только начинается
         # если проверка пройдена, то открыть 
         # папку с текстами, сохранить список текстов
         
         
-        if (self.__iterText < len(self.__textNameList)):
-            self.__isReady = True
-            self.__checkIncText = True
+        if (self._iterText < len(self._textNameList)):
+            self._isReady = True
+            self._checkIncText = True
             return True
         # <- если текущий счетчик количества пройденных текстов
         # всё ещё меньше количества текстов в папке, то
@@ -105,17 +100,17 @@ class OpenTexts:
         # текста в методе __getNextSearchFoler
         
         else:
-            if (self.__iterTopic+1 < len(self.__topicNameList)):
-                self.__textNameList = os.listdir(self.__path + "/" +
-                                 self.__topicNameList[self.__iterTopic+1])
+            if (self._iterTopic+1 < len(self._topicNameList)):
+                self._textNameList = os.listdir(self._path + "/" +
+                                 self._topicNameList[self._iterTopic+1])
                 # <- если число пройденных топико ещё меньше чем кол-во
                 # топиков общее, то строим путь к ещё одной папке с текстами
                 # и открываем список файлов в этой папке
-                if (len(self.__textNameList) < 1):
+                if (len(self._textNameList) < 1):
                     return False
                 else:
-                    self.__isReady = True
-                    self.__checkIncTopic = True
+                    self._isReady = True
+                    self._checkIncTopic = True
                     return True
                 # <- если в новом списке нет элементов (<1), то 
                 # запрещаем считывать новые тексты
@@ -127,63 +122,57 @@ class OpenTexts:
         # списка окажется пустой, тогда он остановит сканирование на ней
         
     
-    def __getNextSearchFolder(self):
-        # print("OT__getNextSearchFoler")
-        if (self.__isReady):
+    def _getNextSearchFolder(self):
+        if (self._isReady):
             # инкремент счетчиков, если это разрешено
-            if self.__checkIncTopic:
-                self.__iterTopic+=1
-                self.__checkIncTopic = False
-                self.__isReady = False
-                self.__iterText = 1
-            elif self.__checkIncText:
-                self.__iterText+=1
-                self.__checkIncText = False
-                self.__isReady = False
+            if self._checkIncTopic:
+                self._iterTopic+=1
+                self._checkIncTopic = False
+                self._isReady = False
+                self._iterText = 1
+            elif self._checkIncText:
+                self._iterText+=1
+                self._checkIncText = False
+                self._isReady = False
             else: 
                 sys.exit("Error: No permission to iterate text number")
         else:
            sys.exit("Error: End of text list")
         # сохранение данных о имени, теме и самого текста 
         # во временной переменной и возврат её к вызываемой программе ->
-        self.__tempData['name'] = self.__textNameList[self.__iterText-1]
-        self.__tempData['topicName'] = self.__topicNameList[self.__iterTopic]
-        self.__tempData['baseText'] = self.__getText(
-            self.__topicNameList[self.__iterTopic],
-            self.__textNameList[self.__iterText-1])
-        return self.__tempData
+        self._tempData['name'] = self._textNameList[self._iterText-1]
+        self._tempData['topicName'] = self._topicNameList[self._iterTopic]
+        self._tempData['baseText'] = self._getText(
+            self._topicNameList[self._iterTopic],
+            self._textNameList[self._iterText-1])
+        return self._tempData
     
     
     
-    def __hasNextSearchTxt(self):
-        # print("OT__hasNextSearchTxt")
+    def _hasNextSearchTxt(self):
         #!!!добавить: реализация метода
         return True
     
-    def __getNextSearchTxt(self):
-        # print("OT__getNextSearchTxt")
+    def _getNextSearchTxt(self):
         #!!!добавить: реализация метода
         return 0
     
     
-    def __hasNextSearchAlt(self):
-        # print("OT__hasNextSearchAlt")
+    def _hasNextSearchAlt(self):
         #!!!добавить: реализация метода
         return True
     
-    def __getNextSearchAlt(self):
-        # print("OT__getNextSearchAlt")
-            
+    def _getNextSearchAlt(self):
         #!!!добавить: реализация метода
         return 0
     
-    def __getText(self, topic, text):
-        # print("OT__getText")
-        path = self.__path + "/" + topic + "/" + text
+    # -> очень ненадёжный метод. нужно как следует его протестировать и
+    # пофиксить
+    def _getText(self, topic, text):
+        path = self._path + "/" + topic + "/" + text
         # f = open(path, mode = "r", encoding = "ascii",)
         f = open(path, mode = "r", encoding = "utf-8")
-        try: 
-                
+        try:   
             # tempText = f.read().decode("utf-16")
             tempText = f.read()
             # <- прочитать текст

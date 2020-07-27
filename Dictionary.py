@@ -1,39 +1,36 @@
 """
-27.07.2020 v0.1.4
+27.07.2020 v0.1.5
 Dictionary - файл, содержащий класс для работы со словарем/словарями 
 корпуса текстов
-
-
 
 #!!! - добавить описание общее
 #!!! - добавить описание каждого метода
 #!!! - удалить ненужные комментарии с описанием
 #!!! - реализовать недостающие методы
-#!!! - заменить __ на _
 """
 
 class Dictionary:
     
-    __global = None # глобальный словарь
-    __last = None # последний локальный словарь
+    _global = None # глобальный словарь
+    _last = None # последний локальный словарь
     
-    __wordsList = None # список всех слов в тексте
+    _wordsList = None # список всех слов в тексте
     
     def __init__(self):
-        self.__global = {}
-        self.__last = {}
+        self._global = {}
+        self._last = {}
     
     
     def addData(self, text):
-        self.__last.clear()
-        self.__wordsList = text.split(" ")
-        for word in self.__wordsList:
-            if self.__last.get(word) == None:
-                self.__last[word] = 1
+        self._last.clear()
+        self._wordsList = text.split(" ")
+        for word in self._wordsList:
+            if self._last.get(word) == None:
+                self._last[word] = 1
             else: 
-                self.__last[word] = self.__last[word] + 1
+                self._last[word] = self._last[word] + 1
         
-        self.__addToGlobal(self.__last)
+        self._addToGlobal(self._last)
         # метод получает текст, получает из него 
         # локальный словарь, затем дополняет им глобальный 
         # словарь
@@ -42,27 +39,27 @@ class Dictionary:
     def getGlobalDictionary(self):
         # метод возвращает глобальный словарь
         #!!! - реализовать метод
-        return self.__global
+        return self._global
     
     def getLastDictionary(self):
         # метод возвращает последний локальный словарь
         #!!! - реализовать метод
-        return self.__last
+        return self._last
     
     def getGlobalSize(self):
-        return len(self.__global)
+        return len(self._global)
     
     def getLastSize(self):
-        return len(self.__last)
+        return len(self._last)
     
     
     # @private methods
-    def __addToGlobal(self, last):
+    def _addToGlobal(self, last):
         for key in last.keys():
-            if self.__global.get(key) == None:
-                self.__global[key] = last[key]
+            if self._global.get(key) == None:
+                self._global[key] = last[key]
             else:
-                self.__global[key] = self.__global[key] + last[key]
+                self._global[key] = self._global[key] + last[key]
     
             
     

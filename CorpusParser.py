@@ -1,21 +1,16 @@
 """
-27.07.2020 v0.1.5
+27.07.2020 v0.1.9
 CorpusParser - файл, содержащий методы и классы для парсинга 
 исходных текстов:
     1. Разбивка текста на отдельные токены (слова)
-    2. Удаление стоп-слов
+    2. Удаление общеупотребительных-слов
     3. Выполнение операции стемминга/лемматизации
 Обработка рассчитана на тексты, написанные кириллицей и/или латиницей
 
 Параметры, которые используются классом CorpusParser задаются при
 инициализации класса
 
-
-#!!! - добавить описание каждого метода
-#!!! - удалить ненужные комментарии с описанием
-#!!! - удалить ненужные закомментированные print'ы
 #!!! - реализовать недостающие методы
-
 #!!! - реализовать:
 - поддержка русского, английского и рус/англ (mul, multilanguage) языков
 - добавить стеммер портера для русского языка
@@ -37,8 +32,8 @@ import sys
 
 class CorpusParser:
     
-    _tempWordList = None # список слов в тексте
-    _stopList = [] # список стоп-слов
+    _tempWordList = None # весь текст в виде списка слов
+    _stopList = [] # список общеупотребительных слов
     _stopListEng = []
     _stopListRus = []
     _ps = None # porter Stemmer
@@ -48,8 +43,32 @@ class CorpusParser:
     _stemType = None
     _stopWordsType = None
     
-    def __init__(self, language = 'eng', stemType = 'stemming',
-                 stopWordsType = 'default'):
+    def __init__(self, language: str = 'eng', stemType: str = 'stemming',
+                 stopWordsType: str = 'default'):
+        """
+        В конструкторе класса выполняется определение дальнейших параметров,
+        которые будут использоваться при выполнении обработки текстов
+        Parameters
+        ----------
+        language : str, optional
+            Язык корпуса данных. Может принимать значения "eng", "rus", "mul". 
+             "mul" - мультиязычный (англ и рус). Каждый вариант, 
+             в первую очередь, влияет на то, какие слова будут 
+             игнорироваться фильтром. The default is 'eng'.
+             #!!! - пока работает только "eng"
+        stemType : str, optional
+            Тип операции приведения слова к своей основе. Доступны 2 варианта
+            "lemma" - лемматизация, "stemming" - стемминг. алгоритмы 
+            различаются между собой как по скорости работы, так и по 
+            качеству приведения к основе. The default is 'stemming'.
+        stopWordsType : str, optional
+            выбор способа отсечения стоп-слов. The default is 'default'.
+            #!!! - пока работает только отсечение заранее определённого списка
+            слов
+        Returns
+        -------
+        None.
+        """
         self._language = language
         
         if (stemType == 'stemmer' or stemType == 'stem' or 
@@ -72,20 +91,38 @@ class CorpusParser:
             self._initStopWords()
         
         
-    def parsing(self, text):
+    def parsing(self, text:str):
+        """
+        public parsing(self, text):
+        Метод получает на вход исходный необработанный текст и возвращает
+        текст, прошедший все выбранные этапы фильтрации. Во многом итоговый
+        результат будет зависеть от того, какие параметры были заданы в
+        конструкторе класса
+        Parameters
+        ----------
+        text : str
+            исходный текст.
+        Returns
+        -------
+        str
+            итоговый текст.
+        """
         # получаем текст
         # отправляем в токенайзер
         # получаем список
-        # удаляем стоп-слова из списка
+        # удаляем общеупотребительные слова из списка
         # отправляем список в стеммер/лемматизатор
         # возвращаем текст
         
         self._tempWordList = self._tokenizer(text)
+        # <- токенайзер делит текст на токены и приводит к нижнему регистру
         
+        # -> удаление стоп-слов
         if (self._stopWordsType == 'default'):
             #!!! продумать логику использования параметра стопВордс
             self._tempWordList = self._deleteStopWords(self._tempWordList)
         
+        # -> выделение основы слова
         if (self._stemType == 'stem'):
             tempList = []
             for w in self._tempWordList:
@@ -96,21 +133,33 @@ class CorpusParser:
         elif (self._stemType == 'lemma'):
             print("lemma")
             #!!! реализовать лемматизацию мультиязычную
-             
-            
         return " ".join(self._tempWordList)
         
         
-         
-        
     # @private methods
-    # def __stemmer(self, wordList):
+    
+    # def _stemmer(self, wordList):
         # print("CP__stemmer")
     
-    # def __lemmatizer(self, wordList):
+    # def _lemmatizer(self, wordList):
         # print("CP__lemmatizer")
         
-    def _tokenizer(self, text):
+    def _tokenizer(self, text:str):
+        """
+        private _tokenizer(self, text):
+        метод приводит весь текст к нижнему регистру, затем выполняется 
+        замена последовательности небуквенных символов (в зависимости
+        от выбранного языка) на одиночные пробелы. по пробелам происходит
+        разделение текста на список слов
+        Parameters
+        ----------
+        text : str
+            Исходный текст.
+        Returns
+        -------
+        TYPE
+            список слов в тексте.
+        """
         text = text.lower()
         if self._language == 'eng':
             text = re.sub(r"[^a-z]+", " ", text)
@@ -123,6 +172,7 @@ class CorpusParser:
         # <- перевод в нижний регистр и замена небуквенных символов пробелами
         #!!! продумать, что делать с цифрами. нужны ли они, или 
         # их нужно как другой мусор удалять
+        # подсказка по регулярным выражениям:
         # \b\W+\b|\b\W+$ - последовательности между словами (англ) и цифрами
         # \b[\W0-9]+\b|\b\W+$ - последовательности между словами  (англ)
         # [^a-zа-яA-ZА-ЯёЁ]+ - последовательности между словами русс и англ (любых)
@@ -133,15 +183,31 @@ class CorpusParser:
 
     
     def _deleteStopWords(self, wordList):
+        """
+        private _deleteStopWords(self, wordList):
+        метод получает список со всеми словами в тексте и удаляет лишние
+        слова, согласно правилам, которые задаются в конструкторе класса
+        Parameters
+        ----------
+        wordList : TYPE
+            Исходный список.
+        Returns
+        -------
+        wordList : TYPE
+            Отформатированный список.
+        """
         #!!! скорее всего, это медленный метод. нужно оптимизировать
         for word in self._stopList:
             for i in range(wordList.count(word)):
                 wordList.remove(word)
         return wordList
     
-        
             
     def _initStopWords(self):
+        """
+        #!!! лучше использовать инструменты nltk
+        метод со списком общеупотребительных слов
+        """
         if (self._language == 'eng' or self._language == 'mul'):
             stopListEng = ['and', 'the', 'if', 'how', 'that', 
                               'then', 'those', 'this', 'those', 'it',
@@ -153,12 +219,9 @@ class CorpusParser:
                                   'от', 'под', 'над', 'этот', 
                                   'тот', 'те', 'их']
             self._stopList.extend(stopListRus)
-        #!!! дополнить список стоп-слов для обоих языков
+        #!!! дополнить список общеупотребительных слов для обоих языков
         # и/или использовать инструменты из NLTK
                               
-                          
-        
-        
 
 if __name__ == '__main__':
     cp = CorpusParser(language = 'eng', stemType = 'stemming',
