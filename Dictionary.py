@@ -1,4 +1,16 @@
-# -*- coding: utf-8 -*-
+"""
+27.07.2020 v0.1.4
+Dictionary - файл, содержащий класс для работы со словарем/словарями 
+корпуса текстов
+
+
+
+#!!! - добавить описание общее
+#!!! - добавить описание каждого метода
+#!!! - удалить ненужные комментарии с описанием
+#!!! - реализовать недостающие методы
+#!!! - заменить __ на _
+"""
 
 class Dictionary:
     
@@ -8,13 +20,11 @@ class Dictionary:
     __wordsList = None # список всех слов в тексте
     
     def __init__(self):
-        # print("D__init")
         self.__global = {}
         self.__last = {}
     
     
     def addData(self, text):
-        # print("DaddData")
         self.__last.clear()
         self.__wordsList = text.split(" ")
         for word in self.__wordsList:
@@ -30,13 +40,11 @@ class Dictionary:
         #!!! - реализовать метод
     
     def getGlobalDictionary(self):
-        # print("DgetFullDictionary")
         # метод возвращает глобальный словарь
         #!!! - реализовать метод
         return self.__global
     
     def getLastDictionary(self):
-        # print("DgetLastDictionary")
         # метод возвращает последний локальный словарь
         #!!! - реализовать метод
         return self.__last
