@@ -29,6 +29,6 @@ in *param.json*:
     "saveDictionary": false
 ```
 
-For a complete analysis of the corpus, you can run the *main.py* or *main.jj* file.
+For a complete analysis of the corpus, you can run the *main.py* or *demo_full_analysis.ipynb* file.
 
-For neural network analysis of the corpus based on input vectors, you can run the file *main_nn_analysis.py* or *main_nn_analysis.jj*
+For neural network analysis of the corpus based on input vectors, you can run the file *main_nn_analysis.py* or *demo_classification.ipynb*
