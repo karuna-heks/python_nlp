@@ -1,5 +1,5 @@
 """
-v0.1.2
+v0.1.4
 
 Доступные утилиты:
     - класс ProgressBar 
@@ -7,6 +7,7 @@ v0.1.2
 
 Добавить:
     - функция для вывода данных со сдвигом каретки
+    - описание методов и функций
 """
 import sys
 
@@ -30,6 +31,8 @@ class ProgressBar:
         sys.stdout.write('\r[%s] %s%s ...%s' % (bar, percents, '%', 
                                                 self._suffix))
         sys.stdout.flush()
+        if self._count == self._max:
+            print("\n")
     
     def restart(self):
         self._count = self._startCount

@@ -29,6 +29,7 @@ db.initFullAnalysis(p.readDBCorpusPath()) #иниц. класса для раб�
 # отправка в него пути к БД
 corpusID = db.getCorpusID() #сохранение актуального ID, который
 # является индексом строки в БД
+print("Добавление информации в базу данных...")
 db.updateCorpus('name', p.readName(), corpusID) #добавление начальной инфо
 # рмации о корпусе. данные считываются с параметров и отправляются
 db.updateCorpus('language', p.readLanguage(), corpusID) #
@@ -59,6 +60,7 @@ op.searchFolder() # выбор метода для своего типа исх�
 # searchFolder, searchTxt, searchAlt
 # !!! мб перенести выбор метода в json параметры. а внутри класса пусть
 # сам определяет, какой метод надо использовать, на основе параметров 
+print("Открытие исходных текстов...")
 while(op.hasNext()): # проверка на наличие следующего текста
     tempData = op.getNext() # извлечение базовой информации из 
     # файла, сохранение в словаре
@@ -77,7 +79,7 @@ while(op.hasNext()): # проверка на наличие следующего
     # выходного вектора.
     
    
-    
+print("Обновление списка тем...")
 for name, val, i in zip(analyzer.getList().keys(), 
                      analyzer.getList().values(),
                      range(analyzer.getNumOfTopics())):
@@ -89,21 +91,24 @@ for name, val, i in zip(analyzer.getList().keys(),
     # общая информация, для отчетности
     
 
-    
+print("Выполняется парсинг текстов...")
 parser = CorpusParser(language = p.readLanguage(), 
                       stemType = p.readStemType(),
                       stopWordsType = p.readStopWordsType)
 tempText = ''
+pb = ProgressBar(maxValue=db.getTextsSize(),
+                 suffix='обработано')
 for i in range(db.getTextsSize()):
     tempText = db.getTextsData('baseText', i+1)[0][0]
     tempText = parser.parsing(tempText)
     db.updateTexts('formattedText', tempText, i+1)
+    pb.inc()
 # <- выполняется полный проход по всем сырым текстам в бд
 # забираются сырые тексты, отправляются на очистку
 # возвращаются тексты после фильтрации и отправляются в БД обратно
 
 
-
+print("Сохранение локальных словарей в базе данных...")
 d = Dictionary()
 for i in range(db.getTextsSize()):
     d.addData(db.getTextsData('formattedText', i+1)[0][0])
@@ -115,11 +120,15 @@ for i in range(db.getTextsSize()):
 
 
 if p.saveDictionary == True:
+    print("Добавление глобального словаря в базу данных...")
+    pb.new(maxValue=d.getGlobalSize(),
+           suffix='добавлено')
     tempDict = d.getGlobalDictionary()
     for key, val in tempDict.items():
         lastID = db.addDictionary()
         db.updateDictionary('word', key, lastID)
         db.updateDictionary('value', val, lastID)
+        pb.inc()
         # <- добавление глобального словаря в бд, целиком
         #!!! нужно пофиксить. работает слишком медленно
    
@@ -138,10 +147,12 @@ db.updateInfo('dictionarySize', inputSize, 1)
 # <- обновление общей информации в БД (для отчетности)
 
 
-
+print("Создание векторов текстов...")
+pb.new(maxValue=corpusSize,
+       suffix="обработано")
 v = Vectorizer()
 v.addGlobDict(d.getGlobalDictionary())
-for i in range(db.getTextsSize()):
+for i in range(corpusSize):
     tempStr = db.getTextsData('localDictionary', i+1)[0][0]
     tempDict = json.loads(tempStr)
     tempArray = v.getVecFromDict(tempDict)
@@ -156,10 +167,12 @@ for i in range(db.getTextsSize()):
     db.updateTexts('outputVector', 
                    json.dumps(v.numToOutputVec(topicNum, outputSize)),
                    i+1)
+    pb.inc()
     # <- извлечение номера топика для формирования входного вектора
     # и отправки этого вектора в БД
 #%%
 #!!! извлечение данных из генератора данных
+print("Извлечение векторов из базы данных...")
 c = db.getConnectionData()
 ds = tf.data.Dataset.from_generator(
     db.generator(corpusSize, db.getDataCorpusName(), 'inputVector', 'outputVector'),
@@ -222,7 +235,7 @@ ds_val = ds_val.batch(30)
 # for next_el in ds_val:
 #     tf.print(next_el)
 #%%
-
+print("Создание нейросетевой модели...")
 model = tf.keras.Sequential()
 
 model.add(layers.Dense(inputSize, activation='relu'))
@@ -234,13 +247,14 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
               loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
 #%%
+print("Начало процесса обучения сети...")
 history = model.fit(ds_train,
                     epochs=20,
                     validation_data=ds_val)
 
 #%%
 
-
+print("Подготовка графиков...")
 #summarize history for accuracy
 plt.figure(figsize=(16, 10))
 plt.plot(history.history['val_categorical_accuracy'])
