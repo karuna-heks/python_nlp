@@ -1,10 +1,9 @@
 """
-27.07.2020 v0.1
+v0.2.0
 Param - класс, необходимый для работы с файлом параметров в формате json
 
 
 #!!! - добавить описание общее
-#!!! - добавить краткое описание каждого метода
 """
 
 import json
@@ -21,6 +20,10 @@ class Param:
     
     def readString(self):
         return self.json_param
+    
+    def printParam(self):
+        print("Полный список выбранных параметров программы:")
+        print(self.json_param)
 
     def readName(self):
         return json.loads(self.json_param).get('name')
@@ -54,7 +57,8 @@ class Param:
         
 if __name__ == '__main__':
     p = Param()
-    print(p.readString())
-    print(p.readName())
-    print(p.readDBCorpusPath())
-    print(p.saveDictionary())
+    p.printParam()
+    # print(p.readString())
+    # print(p.readName())
+    # print(p.readDBCorpusPath())
+    # print(p.saveDictionary())

@@ -5,6 +5,7 @@ from CorpusParser import CorpusParser
 from Dictionary import Dictionary
 from Vectorizer import Vectorizer
 from CorpusAnalyzer import CorpusAnalyzer
+from utility import ProgressBar
 import time
 import json
 import tensorflow as tf
@@ -22,6 +23,7 @@ compilationTime = "{0}.{1}.{2} {3}:{4}".format(t.tm_year, t.tm_mon,
                                                t.tm_min)
 
 p = Param() #инициализация класса с параметрами работы
+p.printParam() #вывод списка параметров
 db = DbInteraction() #иниц. класса для работы с БД
 db.initFullAnalysis(p.readDBCorpusPath()) #иниц. класса для работы с БД
 # отправка в него пути к БД
@@ -47,7 +49,7 @@ db.updateInfo('corpus_ID', corpusID, 1)
 db.updateInfo('compilationTime', compilationTime, 1)
 
    
-
+# pb = ProgressBar(
 analyzer = CorpusAnalyzer() # аналайзер дополняет БД оставшимися данными
 
 op = OpenTexts(p.readDocCorpusPath()) # иниц. класса для работы с исходными
