@@ -10,6 +10,9 @@ $ pip install --upgrade matplotlib
 $ pip install numpy scipy
 $ pip install keras
 $ pip install --user -U nltk
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
+nltk.download(“stopwords”)
 ```
 **Сonfigure model parameters**
 in *param.json*:

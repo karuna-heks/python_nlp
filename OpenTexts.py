@@ -1,5 +1,5 @@
 """
-27.07.2020 v0.1.4
+v0.4.1
 OpenTexts - файл, содержащий класс для открытия текстовых файлов, считывания
 текстов. Позволяет работать со следующей структурой файлов:
     - исходная папка содержит n других папок. каждая папка является сборником
@@ -17,7 +17,6 @@ OpenTexts - файл, содержащий класс для открытия т
 #!!! - реализовать недостающие методы
 #!!! - реализовать нормальный итератор
 #!!! - реализовать обработчики ошибок
-#!!! - заменить __ на _
 """
 
 import os
@@ -69,9 +68,9 @@ class OpenTexts:
         
     def getNext(self):
         if self._chooseMethod == 1:
-            return self.__getNextSearchFolder()
+            return self._getNextSearchFolder()
         elif self._chooseMethod == 2:
-            return self.__getNextSearchTxt()
+            return self._getNextSearchTxt()
         elif self._chooseMethod == 3:
             return self._getNextSearchAlt()
         else: 
@@ -79,7 +78,7 @@ class OpenTexts:
   
   
     # @private methods
-    def __hasNextSearchFolder(self):
+    def _hasNextSearchFolder(self):
         if (self._iterTopic < 1):
             if (self._iterText < 1):
                 self._textNameList = os.listdir(self._path + "/" + 
@@ -97,7 +96,7 @@ class OpenTexts:
         # <- если текущий счетчик количества пройденных текстов
         # всё ещё меньше количества текстов в папке, то
         # можно разрешать инкрементирование, для открытия этого
-        # текста в методе __getNextSearchFoler
+        # текста в методе _getNextSearchFoler
         
         else:
             if (self._iterTopic+1 < len(self._topicNameList)):

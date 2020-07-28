@@ -1,5 +1,5 @@
 """
-27.07.2020 v0.1.9
+v0.19
 CorpusParser - файл, содержащий методы и классы для парсинга 
 исходных текстов:
     1. Разбивка текста на отдельные токены (слова)
@@ -10,23 +10,28 @@ CorpusParser - файл, содержащий методы и классы дл�
 Параметры, которые используются классом CorpusParser задаются при
 инициализации класса
 
-#!!! - реализовать недостающие методы
 #!!! - реализовать:
 - поддержка русского, английского и рус/англ (mul, multilanguage) языков
-- добавить стеммер портера для русского языка
-- добавить лемматизацию для русского языка
-- добавить лемматизацию для английского языка
-- добавить фильтр общеупотребительных слов:
-        - для английского языка
-        - для русского языка
-        - настройка фильтра (какое кол-во слов будет удаляться (степень
-        жесткости фильтра))
-- возможность фильтрации слов со слишком низкой частотой
-- оптимизировать медленный метод фильтрации слов, либо удалить коммент о
-необходимости оптимизации
+- проверить разные способы лемматизации для англ языка. Выбрать один из них
+или добавить несколько:
+    - wordnet lemmatizer (сейчас)
+    - spaCy
+    - TextBlob
+    - Pattern Lemmatizer
+    - Stanford CoreNLP
+    - Gensim
+    (подробнее тут: 
+        https://webdevblog.ru/podhody-lemmatizacii-s-primerami-v-python/)
+- возможность удаления слов со слишком низкой частотой
 """
 import re
+import nltk
+from nltk.corpus import wordnet
+from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+from nltk.stem.snowball import SnowballStemmer
+from pymystem3 import Mystem
 import sys
 
 
@@ -36,7 +41,11 @@ class CorpusParser:
     _stopList = [] # список общеупотребительных слов
     _stopListEng = []
     _stopListRus = []
-    _ps = None # porter Stemmer
+    
+    _porter = None # NLTK porter Stemmer
+    _lemma = None # NLTK lemmatizer
+    _snowball = None # NLTK SnowballStemmer
+    _mystem = None # mystem lemmatizer
     
     #@ params
     _language = None
@@ -55,7 +64,7 @@ class CorpusParser:
              "mul" - мультиязычный (англ и рус). Каждый вариант, 
              в первую очередь, влияет на то, какие слова будут 
              игнорироваться фильтром. The default is 'eng'.
-             #!!! - пока работает только "eng"
+             #!!! - пока работает только англ и рус по-отдельности
         stemType : str, optional
             Тип операции приведения слова к своей основе. Доступны 2 варианта
             "lemma" - лемматизация, "stemming" - стемминг. алгоритмы 
@@ -69,28 +78,49 @@ class CorpusParser:
         -------
         None.
         """
-        self._language = language
-        
+        if (language == 'russian' or language == 'rus'):
+            self._language = 'rus'
+        elif (language == 'english' or language == 'eng'):
+            self._language = 'eng'
+        elif (language == 'multilanguage' or language == 'mul'):
+            sys.exit("Error: multilanguage is not available")
+            #!!! использование одновременно двух языков пока недоступно
+            self._language = 'mul' 
+            
         if (stemType == 'stemmer' or stemType == 'stem' or 
             stemType == 'stemming'):
             self._stemType = 'stem'
-            self._ps = PorterStemmer()
+            if self._language == 'rus':
+                self._snowball = SnowballStemmer('russian')
+            elif self._language == 'eng':
+                self._porter = PorterStemmer()
+            elif self._language == 'mul':
+                self._snowball = SnowballStemmer('russian')
+                self._porter = PorterStemmer()
+                
         elif (stemType == 'lemmatization' or stemType == 'lemmatizing' or 
             stemType == 'lemma'):
             self._stemType = 'lemma'
+            if self._language == 'rus':
+                self._mystem = Mystem()
+            elif self._language == 'eng':
+                self._lemma = WordNetLemmatizer()
+            elif self._language == 'mul':
+                self._lemma = WordNetLemmatizer()
+            self._mystem = Mystem()
+                
         elif (stemType == 'none' or stemType == 'no' or stemType == 'not' or
               stemType == 'n'):
             self._stemType = 'none'
         else:
-            self._stemType = 'stem'
-            self._ps = PorterStemmer()
+            self._stemType = 'none'
             
         if (stopWordsType == 'default'):
             self._stopWordsType = 'default'
             #!!! продумать логику использования параметра стопВордс
             self._initStopWords()
         
-        
+
     def parsing(self, text:str):
         """
         public parsing(self, text):
@@ -123,26 +153,66 @@ class CorpusParser:
             self._tempWordList = self._deleteStopWords(self._tempWordList)
         
         # -> выделение основы слова
-        if (self._stemType == 'stem'):
+        if (self._stemType != 'none'):
             tempList = []
             for w in self._tempWordList:
-                tempList.append(self._ps.stem(w))
+                tempList.append(self._stemmer(w))
             self._tempWordList = tempList
-            # <- создание списка. наполнение списка словами после стемминга
-            #!!! добавить мультиязычность (пока только англ)
-        elif (self._stemType == 'lemma'):
-            print("lemma")
-            #!!! реализовать лемматизацию мультиязычную
         return " ".join(self._tempWordList)
         
         
     # @private methods
     
-    # def _stemmer(self, wordList):
-        # print("CP__stemmer")
+    def _stemmer(self, word:str):
+        """
+        private _stemmer(self, word):
+        В зависимости от выбранного метода стемминга, выполняется определённая
+        операция. Метод определяется в конструкторе
+        Parameters
+        ----------
+        word : str
+            Исходное слово.
+        Returns
+        -------
+        str. Слово после стемминга
+        """
+        #!!! добавить мультиязычность (пока только англ и рус по-отдельности)
+        if (self._language == 'eng'):
+            if (self._stemType == 'lemma'):
+                word = self._lemma.lemmatize(word, self._getWordnetPos(word))
+            elif (self._stemType == 'stem'):
+                word = self._porter.stem(word)
+                
+        elif (self._language == 'rus'):
+            if (self._stemType == 'lemma'):
+                word = self._mystem.lemmatize(word)[0]
+            elif (self._stemType == 'stem'):
+                word = self._snowball.stem(word)
+        
+        return word
+
     
-    # def _lemmatizer(self, wordList):
-        # print("CP__lemmatizer")
+    def _getWordnetPos(self, word:str):
+        """
+        private _getWordnetPos(self, word):
+        Метод определяет POS-тег для входящего слова. Это должно улучшить
+        процесс лемматизации Wordnet стеммером
+        Parameters
+        ----------
+        word : str
+            Слово, для которого будет определяться POS-тег.
+        Returns
+        -------
+        TYPE: str
+            POS-тег.
+        """
+        tag = nltk.pos_tag([word])[0][1][0].upper()
+        tag_dict = {"J": wordnet.ADJ,
+                    "N": wordnet.NOUN,
+                    "V": wordnet.VERB,
+                    "R": wordnet.ADV}
+        return tag_dict.get(tag, wordnet.NOUN)
+        
         
     def _tokenizer(self, text:str):
         """
@@ -196,41 +266,66 @@ class CorpusParser:
         wordList : TYPE
             Отформатированный список.
         """
-        #!!! скорее всего, это медленный метод. нужно оптимизировать
-        for word in self._stopList:
-            for i in range(wordList.count(word)):
-                wordList.remove(word)
-        return wordList
-    
+        newWordList = []
+        for word in wordList:
+            if word not in self._stopList:
+                newWordList.append(word)
+        return newWordList
+               
             
     def _initStopWords(self):
         """
-        #!!! лучше использовать инструменты nltk
-        метод со списком общеупотребительных слов
+        private _initStopWords(self):
+        Метод формирует список со стоп-словами, для дальнейшего удаления
+        их из списка слов в методе _deleteStopWords
+        Returns None.
         """
+        stopListTrash = ['', ' ', '\n']
+        self._stopList.extend(stopListTrash)
         if (self._language == 'eng' or self._language == 'mul'):
-            stopListEng = ['and', 'the', 'if', 'how', 'that', 
-                              'then', 'those', 'this', 'those', 'it',
-                              'can', 'be', 'will', 'would', 'for',
-                              'are', 'as', 'is', 'to', 'of', 'with']
-            self._stopList.extend(stopListEng)
+            self._stopList.extend(stopwords.words('english'))
         if (self._language == 'rus' or self._language == 'mul'):
-            stopListRus = ['а', 'или', 'и', 'в', 'у', 'к',
-                                  'от', 'под', 'над', 'этот', 
-                                  'тот', 'те', 'их']
-            self._stopList.extend(stopListRus)
-        #!!! дополнить список общеупотребительных слов для обоих языков
-        # и/или использовать инструменты из NLTK
+            self._stopList.extend(stopwords.words('russian'))
                               
 
 if __name__ == '__main__':
-    cp = CorpusParser(language = 'eng', stemType = 'stemming',
+    cp = CorpusParser(language = 'rus', stemType = 'lemma',
                  stopWordsType = 'default')
-    testText = """The colour designations for these iron plates are as follows: \
-    1 kg is green, 1.5 kg is yellow, 2 kg is blue, 2.5 kg is red, \
-    5 kg and 0.5 kg are white. It is useful to note the colour assignment \
+    testText1 = """The colour designations for these iron plates are as follows: \
+    It is useful to note the colour assignment \
     of these iron plates is consistent with the heavier bumper plates \
-    (i.e. 1 kg and 10 kg are green, 1.5 kg and 15 kg are yellow, etc.)."""
-    testText = cp.parsing(testText)
-    print(testText)
+    The Christian beliefs of Catholicism are found in the Nicene Creed. 
+    The Catholic Church teaches that it is the One, Holy, Catholic and 
+    Apostolic church founded by Jesus Christ in his Great Commission,
+    [9][10][note 1] that its bishops are the successors of Christ's 
+    apostles, and that the pope is the successor to Saint Peter upon 
+    whom primacy was conferred by Jesus Christ.[13] It maintains that 
+    it practises the original Christian faith, reserving infallibility, 
+    passed down by sacred tradition.[14] The Latin Church, the 
+    twenty-three Eastern Catholic Churches, and institutes such 
+    as mendicant orders, enclosed monastic orders and third orders 
+    reflect a variety of theological and spiritual emphases in 
+    the church.[15][16] In the UK, BMX was a craze which took 
+    off in the early 1980s, specifically 1982/3, when it became 
+    the "must have" bicycle for children and teenagers. Previously 
+    a small niche area, BMX exploded at this time into the dominant 
+    bicycle for the younger rider, with older teenagers and even adults"""
+    testText2 = """
+    Медве́жьи[1] (лат. Ursidae) — семейство млекопитающих отряда хищных. 
+    Отличаются от других представителей псообразных более коренастым 
+    телосложением. Медведи всеядны, хорошо лазают и плавают, быстро 
+    бегают, могут стоять и проходить короткие расстояния на задних 
+    лапах. Имеют короткий хвост, длинную и густую шерсть, а также 
+    отличное обоняние. Охотятся вечером или на рассвете.
+
+    Обычно остерегаются человека, но могут быть опасными в тех местах, 
+    где они привыкли к людям, особенно белый медведь и медведь гризли. 
+    Мало восприимчивы к пчелиным укусам из-за своей густой шерсти, 
+    чувствительны для медведей укусы пчёл в нос[2]. В природе естественных 
+    врагов почти не имеют (на юге Дальнего Востока России и в Маньчжурии на 
+    них могут нападать взрослые тигры).
+    """
+    text = testText2
+    text = cp.parsing(text)
+    print(text)
     
