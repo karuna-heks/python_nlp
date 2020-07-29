@@ -124,14 +124,20 @@ if p.saveDictionary == True:
     pb.new(maxValue=d.getGlobalSize(),
            suffix='добавлено')
     tempDict = d.getGlobalDictionary()
+    idfTable = d.getAdditionalTable()
     for key, val in tempDict.items():
         lastID = db.addDictionary()
         db.updateDictionary('word', key, lastID)
         db.updateDictionary('value', val, lastID)
+        db.updateDictionary('docCount', idfTable.getVal(key, "count"), lastID)
         pb.inc()
         # <- добавление глобального словаря в бд, целиком
         #!!! нужно пофиксить. работает слишком медленно
-   
+   """
+   #!!! - ДОБАВИТЬ НОВЫЙ СТОЛБЕЦ ТАБЛИЦЫ В БД И ВО ВСЕ КЛАССЫ ТАБЛИЦЫ:
+   DbInteraction.py, DbQuery.py
+   #!!!
+   """
     
   
 inputSize = d.getGlobalSize()
@@ -152,6 +158,11 @@ pb.new(maxValue=corpusSize,
        suffix="обработано")
 v = Vectorizer()
 v.addGlobDict(d.getGlobalDictionary())
+        """
+   #!!! - ПЕРЕДАТЬ НОВУЮ ТАБЛИЦУ ЦЕЛИКОМ В ВЕКТОРАЙЗЕР ДЛЯ ДАЛЬНЕЙШИХ ВЫЧ
+    ИСЛЕНИЙ
+   #!!!
+   """
 for i in range(corpusSize):
     tempStr = db.getTextsData('localDictionary', i+1)[0][0]
     tempDict = json.loads(tempStr)
@@ -181,44 +192,8 @@ ds = tf.data.Dataset.from_generator(
     # <- использование генератора, который содержит весь набор данных и 
     # извлекает их, по необходимости
 
-# def calculation(inputVector, outputVector):
-#     print(inputVector)
-#     print(outputVector)
-#     print(len(inputVector))
-#     data1 = np.array([json.loads(inputVector.eval()[0])])
-#     data2 = np.array([json.loads(outputVector.eval()[0])])
-#     print(data1)
-#     print(data2)
-#     return (inputVector, outputVector)
-# ds = ds.shuffle(buffer_size=30, reshuffle_each_iteration=True)
-# ds = ds.batch(32)
-# ds = ds.map(calculation)
-# for next_el in ds:
-#     tf.print(next_el)
-# a1 = aaa.numpy()
-
-# a1 = aaa.numpy()[0]
-# a2 = json.loads(a1)
-# tf.dtypes.as_string    Tensor("args_0:0", dtype=float64)
-    
 #%%
-# цикличное извлечение данных из БД, добавление их в вектора    
-# inputArray = np.zeros((corpusSize, inputSize))
-# outputArray = np.zeros((corpusSize, outputSize))
-# for i in range(db.getTextsSize()):
-#     inputArray[i] = np.array(json.loads(
-#         db.getTextsData('inputVector', i+1)[0][0]))
-    
-#     outputArray[i] = np.array(json.loads(
-#         db.getTextsData('outputVector', i+1)[0][0]))
-
-
-# ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
-# del inputArray
-# del outputArray
-
-#%%
-
+print("Фомирование данных для обучения...")
 ds = ds.shuffle(buffer_size=corpusSize,
                 reshuffle_each_iteration=True)
 trainSize = int(corpusSize*p.getTrainPercentage()/100)

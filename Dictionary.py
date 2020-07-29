@@ -1,25 +1,31 @@
 """
-v0.5.2
+v0.6.0
 Dictionary - файл, содержащий класс для работы со словарем/словарями 
 корпуса текстов
 
 #!!! - добавить описание общее
+#!!! - добавить для каждого слова подсчёт числа документов, в которые 
+оно входит
 #!!! - добавить описание каждого метода
 #!!! - удалить ненужные комментарии с описанием
 #!!! - реализовать недостающие методы
 #!!! - реализовать метод report() с выводом полного текстового отчета
 """
+from utility import Table
 
 class Dictionary:
     
     _global = None # глобальный словарь
     _last = None # последний локальный словарь
+    _t = None # таблица для хранения дополнительных параметров слов
+    
     
     _wordsList = None # список всех слов в тексте
     
     def __init__(self):
         self._global = {}
         self._last = {}
+        self._t = Table(["count", "idf"])
     
     
     def addData(self, text):
@@ -35,16 +41,13 @@ class Dictionary:
         # метод получает текст, получает из него 
         # локальный словарь, затем дополняет им глобальный 
         # словарь
-        #!!! - реализовать метод
     
     def getGlobalDictionary(self):
         # метод возвращает глобальный словарь
-        #!!! - реализовать метод
         return self._global
     
     def getLastDictionary(self):
         # метод возвращает последний локальный словарь
-        #!!! - реализовать метод
         return self._last
     
     def getGlobalSize(self):
@@ -53,14 +56,21 @@ class Dictionary:
     def getLastSize(self):
         return len(self._last)
     
+    def getAdditionalTable(self):
+        #!!! реализовать более красивый способ передачи данных из таблицы,
+        # а не просто возврат всей таблицы
+        return self._t
+    
     
     # @private methods
     def _addToGlobal(self, last):
-        for key in last.keys():
+        for key, val in last.items():
             if self._global.get(key) == None:
-                self._global[key] = last[key]
+                self._global[key] = val
+                self._t.setVal(key, "count", 1)
             else:
-                self._global[key] = self._global[key] + last[key]
+                self._global[key] = self._global[key] + val
+                self._t.setVal(key, "count", self._t.getVal(key, "count") + 1)
     
             
     

@@ -1,5 +1,5 @@
 """
-27.07.2020 v0.3
+27.07.2020 v0.3.1
 Vectorizer - файл, содержащий класс для формирования векторов 
 текстов на основе набора токенов и/или локальных и глобального словарей 
 
@@ -31,14 +31,10 @@ class Vectorizer:
         #!!! необходимо передавать копию словаря, а не просто ссылку
     
     def getVecFromDict(self, d): 
-        # print("VaddDict")
         if (self._globalDict == None):
             sys.exit("Error: Global Dictionary is not initiliazed")
         
         tempArray = []
-        # for key, val, i in zip(self._globalDict.keys(), 
-        #                        self._globalDict.values(),
-        #                        range(len(self._globalDict))):
         for key, val, in self._globalDict.items():
             if d.get(key) != None:
                 tempArray.append(d.get(key))

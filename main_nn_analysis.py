@@ -14,7 +14,9 @@ import matplotlib.pyplot as plt
 
 
 p = Param() #инициализация класса с параметрами работы
+p.printParam() #вывод списка параметров
 
+print('Инициализация...')
 pathToDB = p.getPathToDBForReport()
 db = DbInteraction() #иниц. класса для работы с БД
 db.initNNAnalysis(pathToDB) # отправка в него пути к БД
@@ -31,30 +33,16 @@ inputSize = db.getInfoData('dictionarySize', 1)[0][0]
 outputSize = db.getInfoData('numOfTopics', 1)[0][0]
 corpusSize = db.getInfoData('numOfTexts', 1)[0][0]
 
-#%%
-# цикличное извлечение данных из БД, добавление их в вектора    
-# inputArray = np.zeros((corpusSize, inputSize))
-# outputArray = np.zeros((corpusSize, outputSize))
-# for i in range(corpusSize):
-#     inputArray[i] = np.array(json.loads(
-#         db.getTextsData('inputVector', i+1)[0][0]))
-    
-#     outputArray[i] = np.array(json.loads(
-#         db.getTextsData('outputVector', i+1)[0][0]))
-
-
-# ds = tf.data.Dataset.from_tensor_slices((inputArray, outputArray))
-#%% #!!! test generator 
+#%% 
+print("Извлечение векторов из базы данных...")
 c = db.getConnectionData()
 ds = tf.data.Dataset.from_generator(
     db.generator(corpusSize, db.getDataCorpusName(), 'inputVector', 'outputVector'),
     output_types=(tf.float64, tf.float64),
     output_shapes=(tf.TensorShape((inputSize, )), tf.TensorShape((outputSize, ))))
 
-
-
 #%%
-
+print("Фомирование данных для обучения...")
 ds = ds.shuffle(buffer_size=corpusSize,
                 reshuffle_each_iteration=True)
 trainSize = int(corpusSize*p.getTrainPercentage()/100)
@@ -66,7 +54,7 @@ ds_train = ds_train.batch(30)
 ds_val = ds_val.batch(30)
 
 #%%
-
+print("Создание нейросетевой модели...")
 model = tf.keras.Sequential()
 
 model.add(layers.Dense(inputSize, activation='relu'))
@@ -78,6 +66,7 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
               loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
 
+print("Начало процесса обучения сети...")
 startTime = time.time() 
 history = model.fit(ds_train,
                     epochs=100,
@@ -85,7 +74,7 @@ history = model.fit(ds_train,
 endTime = time.time() 
 #%%
 
-
+print("Подготовка графиков...")
 #summarize history for accuracy
 plt.figure(figsize=(16, 10))
 plt.plot(history.history['val_categorical_accuracy'])
@@ -110,14 +99,13 @@ plt.show()
 
 
 #%% формируем выходные данные
+print("Фомирование выходных данных...")
 resultFull = json.dumps(history.history)
 resultFull = resultFull.replace('"', '""') 
 catAccArray = history.history['categorical_accuracy']
 resultVal1 = json.dumps(catAccArray[len(catAccArray)-1]) 
-# <- last model accuracy categorical_accuracy
 valCatAccArray = history.history['val_categorical_accuracy']
 resultVal2 = json.dumps(valCatAccArray[len(valCatAccArray)-1]) 
-# <- last val accuracy val_categorical_accuracy
 learningTime = json.dumps(endTime-startTime)
 compilationTime2 = "{0}-{1}-{2} {3}-{4}".format(t.tm_year, t.tm_mon, 
                                                t.tm_mday, t.tm_hour, 
@@ -128,6 +116,7 @@ neuralNetworkStruct = neuralNetworkStruct.replace('"', '')
 model.save("savedModels/"+nameOfSavedModel)
 
 #%% загружаем выходные данные в бд
+print("Загрузка выходных данных в БД...")
 db.updateInfo('resultVal1', resultVal1, actualNumberOfData)
 db.updateInfo('resultVal2', resultVal2, actualNumberOfData)
 db.updateInfo('resultFull', resultFull, actualNumberOfData)
