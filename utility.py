@@ -1,5 +1,5 @@
 """
-v0.2.3
+v0.2.8
 
 Доступные утилиты:
     - класс ProgressBar 
@@ -9,14 +9,15 @@ v0.2.3
 
 Добавить:
     - функция для вывода данных со сдвигом каретки
-    - описание методов и функций
+    - описание классов, методов и функций
     - в таблице учесть:
         - количество столбцов (если их так много, что они не помещаются все
         на одном экране, то печатать больше одной таблицы)
         - длину слов (если хотя бы одно слово длиннее чем 20 символов, то
         увеличить доступную ширину стобца). в идеале сделать изменение ширины
         столбца в зависимости от ширины самого большого слова в столбце
-        - добавить итератор, чтобы можно было её использовать в циклах
+        - добавить итератор, чтобы можно было её использовать в циклах,
+        например for rowName, column1, column2 in Table:
 """
 import sys
 
@@ -73,11 +74,14 @@ def quickProgressBar(maxValue:int, suffix:str, count:int):
 Table
 """
 class Table:
-    _dictionary = {}
-    _keysColumn = {}
-    _columnsCounter = 0
+    # _dictionary = {}
+    # _keysColumn = {}
+    # _columnsCounter = 0
     
     def __init__(self, columnsList:list):
+        self._dictionary = {}
+        self._columnsCounter = 0
+        self._keysColumn = {}
         for i in columnsList:
             if isinstance(i, str):
                 self._keysColumn[i] = self._columnsCounter

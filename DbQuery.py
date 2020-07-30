@@ -1,5 +1,5 @@
 """
-27.07.2020 v0.4
+v0.4.5
 DbQuery - файл, содержащий класс для формирования команд к БД sqlite
 
 #!!! - добавить описание общее
@@ -41,7 +41,10 @@ CREATE TABLE Texts (
 CREATE TABLE Dictionary (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   word TEXT,
-  value INTEGER);
+  value INTEGER,
+  docCount INTEGER,
+  idf REAL,
+  tfidf REAL);
 """
 
     def getNewTableInfo(self):
@@ -115,7 +118,7 @@ CREATE TABLE Info (
     WHERE id = """+str(strID)+""";"""
     
     def getUpdateTexts(self, strID, strName, strVal):
-        if (isinstance(strVal, int)):
+        if (isinstance(strVal, int) or isinstance(strVal, float)):
             return """UPDATE Texts SET """+strName+""" = """+str(strVal)+""" 
     WHERE id = """+str(strID)+""";"""
         else:
@@ -123,7 +126,7 @@ CREATE TABLE Info (
     WHERE id = """+str(strID)+""";"""
     
     def getUpdateDictionary(self, strID, strName, strVal):
-        if (isinstance(strVal, int)):
+        if (isinstance(strVal, int) or isinstance(strVal, float)):
             return """UPDATE Dictionary SET """+strName+""" = """+str(strVal)+""" 
     WHERE id = """+str(strID)+""";"""
         else:

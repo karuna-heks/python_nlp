@@ -6,6 +6,7 @@ from Dictionary import Dictionary
 from Vectorizer import Vectorizer
 from CorpusAnalyzer import CorpusAnalyzer
 from utility import ProgressBar
+from utility import Table
 import time
 import json
 import tensorflow as tf
@@ -119,7 +120,7 @@ for i in range(db.getTextsSize()):
     # <- добавление в БД локальных словарей в виде json строки
 
 
-if p.saveDictionary == True:
+if p.saveDictionary() == True:
     print("Добавление глобального словаря в базу данных...")
     pb.new(maxValue=d.getGlobalSize(),
            suffix='добавлено')
@@ -133,12 +134,8 @@ if p.saveDictionary == True:
         pb.inc()
         # <- добавление глобального словаря в бд, целиком
         #!!! нужно пофиксить. работает слишком медленно
-   """
-   #!!! - ДОБАВИТЬ НОВЫЙ СТОЛБЕЦ ТАБЛИЦЫ В БД И ВО ВСЕ КЛАССЫ ТАБЛИЦЫ:
-   DbInteraction.py, DbQuery.py
-   #!!!
-   """
-    
+else:
+    idfTable = d.getAdditionalTable()
   
 inputSize = d.getGlobalSize()
 outputSize = db.getTopicListSize()
@@ -156,13 +153,10 @@ db.updateInfo('dictionarySize', inputSize, 1)
 print("Создание векторов текстов...")
 pb.new(maxValue=corpusSize,
        suffix="обработано")
-v = Vectorizer()
+v = Vectorizer(p.readMetric())
 v.addGlobDict(d.getGlobalDictionary())
-        """
-   #!!! - ПЕРЕДАТЬ НОВУЮ ТАБЛИЦУ ЦЕЛИКОМ В ВЕКТОРАЙЗЕР ДЛЯ ДАЛЬНЕЙШИХ ВЫЧ
-    ИСЛЕНИЙ
-   #!!!
-   """
+v.addIdfDict(idfTable, d.getCorpusSize())
+
 for i in range(corpusSize):
     tempStr = db.getTextsData('localDictionary', i+1)[0][0]
     tempDict = json.loads(tempStr)
@@ -181,6 +175,23 @@ for i in range(corpusSize):
     pb.inc()
     # <- извлечение номера топика для формирования входного вектора
     # и отправки этого вектора в БД
+    
+    
+if p.saveDictionary() == True:
+    print("Обновление глобального словаря...")
+    tempDict = d.getGlobalDictionary()
+    v.tfidfGlobalCalc()
+    tfidfArray = v.getTfidfGlobal()
+    idfArray = v.getIdf()
+    pb.new(maxValue=d.getGlobalSize(),
+           suffix='готово')
+    for i in range(len(tfidfArray)):
+        db.updateDictionary('tfidf', tfidfArray[i], i+1)
+        db.updateDictionary('idf', idfArray[i], i+1)
+        pb.inc()
+        # <- добавление глобального словаря в бд, целиком
+        #!!! нужно пофиксить. работает слишком медленно
+        
 #%%
 #!!! извлечение данных из генератора данных
 print("Извлечение векторов из базы данных...")

@@ -1,5 +1,5 @@
 """
-27.07.2020 v0.7
+v0.7.1
 DbInteraction - файл, содержащий методы и классы для взаимодействия
 с базой данных sqlite3. 
 Набор методов класса заточен для работа с базами данных конкретного
@@ -17,8 +17,10 @@ DbInteraction - файл, содержащий методы и классы дл
 Для работы необходим объект класса DbQuery, формирующий команды для
 БД sqlite 
 
+#!!! - добавить класс DbQuery в класс DbInteraction, т.к. они неразрывны
 #!!! - продумать способ сделать методы более универсальными с целью удаления
 практически одинаковых частей кода и методов
+#!!! - перенести глобальные переменные класса внутрь конструктора
 #!!! - добавить описание итераторам либо удалить их, либо исправить их
 #!!! - добавить/исправить комментарии с алгоритмами работы конкретных
 методов
@@ -118,7 +120,6 @@ class DbInteraction:
             на пересечении имени поля и ID строки)
         corpusID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         None.
@@ -137,7 +138,6 @@ class DbInteraction:
             Имя поля таблицы, с которого будут прочитаны данные.
         corpusID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         TYPE
@@ -157,12 +157,10 @@ class DbInteraction:
         corpusID : int
             ID новой БД, которой соответствует строка с общей БД и её таблице
             Corpuses.
-
         Returns
         -------
         TYPE
             Объект соединения с новой БД.
-
         """
         return self._getConnect(self._newDataPath(self._path, str(corpusID)+'.db'))
         
@@ -176,11 +174,9 @@ class DbInteraction:
         ----------
         connectionData : TYPE
             Объект соединения с БД.
-
         Returns
         -------
         None.
-
         """
         self._addTableTopicList(connectionData)
         self._addTableTexts(connectionData)
@@ -197,7 +193,6 @@ class DbInteraction:
         -------
         TYPE: int
             ID созданной строки.
-
         """
         self._sendQuery(self._connectionData, 
                        self._q.getNewStringTopicList())
@@ -214,7 +209,6 @@ class DbInteraction:
         -------
         TYPE: int
             ID созданной строки.
-
         """
         self._sendQuery(self._connectionData, 
                        self._q.getNewStringTexts())
@@ -231,7 +225,6 @@ class DbInteraction:
         -------
         TYPE: int
             ID созданной строки.
-
         """
         self._sendQuery(self._connectionData, 
                        self._q.getNewStringDictionary())
@@ -248,7 +241,6 @@ class DbInteraction:
         -------
         TYPE: int
             ID созданной строки.
-
         """
         self._sendQuery(self._connectionData, 
                        self._q.getNewStringInfo())
@@ -270,7 +262,6 @@ class DbInteraction:
             на пересечении имени поля и ID строки)
         stringID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         None.
@@ -293,7 +284,6 @@ class DbInteraction:
             на пересечении имени поля и ID строки)
         stringID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         None.
@@ -311,12 +301,11 @@ class DbInteraction:
         ----------
         strName : str
             Имя поля таблицы, которое будет изменено.
-        strVal : str or int
+        strVal : str or int or float
             Значение таблицы, которое будет отправлено. (Значение находится
             на пересечении имени поля и ID строки)
         stringID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         None.
@@ -339,7 +328,6 @@ class DbInteraction:
             на пересечении имени поля и ID строки)
         stringID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         None.
@@ -359,7 +347,6 @@ class DbInteraction:
             Имя поля таблицы, с которого будут прочитаны данные.
         stringID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         TYPE
@@ -380,7 +367,6 @@ class DbInteraction:
             Имя поля таблицы, с которого будут прочитаны данные.
         stringID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         TYPE
@@ -401,7 +387,6 @@ class DbInteraction:
             Имя поля таблицы, с которого будут прочитаны данные.
         stringID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         TYPE
@@ -422,7 +407,6 @@ class DbInteraction:
             Имя поля таблицы, с которого будут прочитаны данные.
         stringID : int
             Уникальное ID строки таблицы.
-
         Returns
         -------
         TYPE
@@ -440,7 +424,6 @@ class DbInteraction:
         ----------
         connection : TYPE
             Объект соединения с таблицей.
-
         Returns
         -------
         None.
@@ -456,7 +439,6 @@ class DbInteraction:
         ----------
         connection : TYPE
             Объект соединения с таблицей.
-
         Returns
         -------
         None.
@@ -472,7 +454,6 @@ class DbInteraction:
         ----------
         connection : TYPE
             Объект соединения с таблицей.
-
         Returns
         -------
         None.
@@ -487,7 +468,6 @@ class DbInteraction:
         ----------
         connection : TYPE
             Объект соединения с таблицей.
-
         Returns
         -------
         None.
@@ -504,7 +484,6 @@ class DbInteraction:
         ----------
         path : str
             Путь к файлу БД.
-
         Returns
         -------
         connection : TYPE
@@ -528,7 +507,6 @@ class DbInteraction:
             Объект соединения с конкретной БД.
         q : str
             Запрос.
-
         Returns
         -------
         None.
@@ -551,7 +529,6 @@ class DbInteraction:
             Объект соединения с конкретной БД..
         q : str
             Команда.
-
         Returns
         -------
         result : TYPE
@@ -578,7 +555,6 @@ class DbInteraction:
             Старый путь к БД.
         corpusID : str
             Новое имя БД.
-
         Returns
         -------
         TYPE: str

@@ -1,9 +1,12 @@
 """
-v0.6.0
+v0.6.4
 Dictionary - файл, содержащий класс для работы со словарем/словарями 
 корпуса текстов
 
 #!!! - добавить описание общее
+#!!! - перенести глобальные переменные класса внутрь конструктора
+#!!! - перенести класс Dictionary в файл Vectorizer, т.к. они всё равно должны
+работать только вместе
 #!!! - добавить для каждого слова подсчёт числа документов, в которые 
 оно входит
 #!!! - добавить описание каждого метода
@@ -18,7 +21,7 @@ class Dictionary:
     _global = None # глобальный словарь
     _last = None # последний локальный словарь
     _t = None # таблица для хранения дополнительных параметров слов
-    
+    _corpusSize = 0 
     
     _wordsList = None # список всех слов в тексте
     
@@ -61,6 +64,14 @@ class Dictionary:
         # а не просто возврат всей таблицы
         return self._t
     
+    def corpusSizeInc(self):
+        self._corpusSize += 1
+        
+    def setCorpusSize(self, val:int):
+        self._corpusSize = val
+        
+    def getCorpusSize(self):
+        return self._corpusSize
     
     # @private methods
     def _addToGlobal(self, last):
@@ -71,6 +82,7 @@ class Dictionary:
             else:
                 self._global[key] = self._global[key] + val
                 self._t.setVal(key, "count", self._t.getVal(key, "count") + 1)
+        self.corpusSizeInc() # подсчёт числа текстов пройденных
     
             
     
