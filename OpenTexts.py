@@ -42,6 +42,7 @@ class OpenTexts:
     _checkIncTopic = False # проверка разрешения на инкремент номера темы
     _checkIncText = False # проверка разрешения на инкремент номера текста
     
+    _countText = 0
     
     def __init__(self, path):
         self._path = path
@@ -68,6 +69,8 @@ class OpenTexts:
             return False
         
     def getNext(self):
+        self._countText += 1
+        sys.stdout.write("\rОткрыто: "+str(self._countText))
         if self._chooseMethod == 1:
             return self._getNextSearchFolder()
         elif self._chooseMethod == 2:

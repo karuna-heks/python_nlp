@@ -80,7 +80,7 @@ while(op.hasNext()): # проверка на наличие следующего
     # выходного вектора.
     
    
-print("Обновление списка тем...")
+print("\nОбновление списка тем...")
 for name, val, i in zip(analyzer.getList().keys(), 
                      analyzer.getList().values(),
                      range(analyzer.getNumOfTopics())):
@@ -111,12 +111,14 @@ for i in range(db.getTextsSize()):
 
 print("Сохранение локальных словарей в базе данных...")
 d = Dictionary(p.readMetric())
+pb.new(maxValue=db.getTextsSize(), suffix='cохранено')
 for i in range(db.getTextsSize()):
     d.addData(db.getTextsData('formattedText', i+1)[0][0])
     tempDict = d.getLastDictionary()
     tempStr = json.dumps(tempDict)
     tempStr = tempStr.replace('"', '""') 
     db.updateTexts('localDictionary', tempStr, i+1)
+    pb.inc()
     # <- добавление в БД локальных словарей в виде json строки
 d.idfGlobalCalc()
 
