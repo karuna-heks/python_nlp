@@ -273,7 +273,8 @@ class CorpusParser:
         newWordList = []
         for word in wordList:
             if word not in self._stopList:
-                newWordList.append(word)
+                if len(word) > 1:
+                    newWordList.append(word)
         return newWordList
                
             

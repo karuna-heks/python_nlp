@@ -1,5 +1,5 @@
 """
-v0.3.9
+v0.3.15
 Vectorizer - файл, содержащий класс для формирования векторов 
 текстов на основе набора токенов и/или локальных и глобального словарей 
 
@@ -23,65 +23,68 @@ Vectorizer - файл, содержащий класс для формирова
 import sys
 import numpy as np
 from numpy import linalg as la
-from utility import Table
-from math import log10
+
 
 class Vectorizer:
     
     
     _globalDict = None
     _table = None
-    _corpusSize = 0
     _metric = "" # выбор метрики вычисления векторов
     _idfArray = None
-    _tfidfGlobalArray = None
+    _idfDict = None
+    # _tfidfGlobalArray = None
     
     def __init__(self, metricType:str="tf"):
-        self.metric = metricType
+        self._metric = metricType
         
     
     def addGlobDict(self, globalDictionary):
         self._globalDict = globalDictionary
         
-    def addIdfDict(self, idfDictionary, corpusSize:int):
-        self._table = idfDictionary
-        self._corpusSize = corpusSize
-        self.idfCalc()
-        
-    def idfCalc(self):
-        if ((len(self._table.getRows()) != 0) and \
-            (len(self._table.getColumns()) != 0)):
-            for key in self._globalDict.keys():
-                idf = log10(self._corpusSize / self._table.getVal(key, "count"))
-                # <- вычисление idf, путём деления размера корпуса на
-                # количество текстов, в котором встречается слово key
-                self._table.setVal(key, "idf", idf)
-                # <- добавление результата вычисления в таблицу 
-        else:
-            sys.exit("Error: Additional Table with IDF not have enough \
-                     rows or columns")
-        
-        
-        self._idfArray = np.zeros(len(self._globalDict), float)
-        # <- создание пустого массива для значений idf
-        for key, i in zip(self._globalDict.keys(), 
-                          range(len(self._globalDict))):
-            self._idfArray[i] = self._table.getVal(key, "idf")
-        # <- добавление idf параметра в массив
-        
-    def getIdf(self):
-        return self._idfArray
-                   
-    def tfidfGlobalCalc(self):
-        self._tfidfGlobalArray = np.zeros(len(self._globalDict), float)
-        maxVal = max(self._globalDict.values())
-        for key, val, i in zip(self._globalDict.keys(), 
-                          self._globalDict.values(),
-                          range(len(self._globalDict))):
-            self._tfidfGlobalArray[i] = (val / maxVal) * self._idfArray[i]
+    def addIdfDict(self, idfDict):
+        self._idfDict = idfDict
+        globalDictSize = len(self._globalDict)
+        self._idfArray = np.zeros(globalDictSize, float)
+        for key, i in zip(self._globalDict.keys(), range(globalDictSize)):
+            self._idfArray[i] = self._idfDict[key]
             
-    def getTfidfGlobal(self):
-        return self._tfidfGlobalArray
+        
+    # def idfCalc(self):
+    #     if ((len(self._table.getRows()) != 0) and \
+    #         (len(self._table.getColumns()) != 0)):
+    #         for key in self._globalDict.keys():
+    #             idf = log10(self._corpusSize / self._table.getVal(key, "count"))
+    #             # <- вычисление idf, путём деления размера корпуса на
+    #             # количество текстов, в котором встречается слово key
+    #             self._table.setVal(key, "idf", idf)
+    #             # <- добавление результата вычисления в таблицу 
+    #     else:
+    #         sys.exit("Error: Additional Table with IDF not have enough \
+    #                  rows or columns")
+        
+        
+    #     self._idfArray = np.zeros(len(self._globalDict), float)
+    #     # <- создание пустого массива для значений idf
+    #     for key, i in zip(self._globalDict.keys(), 
+    #                       range(len(self._globalDict))):
+    #         self._idfArray[i] = self._table.getVal(key, "idf")
+    #     # <- добавление idf параметра в массив
+    #     self._tfidfGlobalCalc()
+        
+    # def getIdf(self):
+    #     return self._idfArray
+                   
+    # def _tfidfGlobalCalc(self):
+    #     self._tfidfGlobalArray = np.zeros(len(self._globalDict), float)
+    #     maxVal = max(self._globalDict.values())
+    #     for key, val, i in zip(self._globalDict.keys(), 
+    #                       self._globalDict.values(),
+    #                       range(len(self._globalDict))):
+    #         self._tfidfGlobalArray[i] = (val / maxVal) * self._idfArray[i]
+            
+    # def getTfidfGlobal(self):
+    #     return self._tfidfGlobalArray
                  
     
     def getVecFromDict(self, localDict): 

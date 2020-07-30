@@ -1,5 +1,5 @@
 """
-v0.2.2
+v0.2.3
 Param - класс, необходимый для работы с файлом параметров в формате json
 
 
@@ -55,6 +55,9 @@ class Param:
     
     def getPathToDBForReport(self):
         return json.loads(self.json_param).get('pathToDBForReport')
+    
+    def readMaxFeatures(self):
+        return json.loads(self.json_param).get('maxFeatures')
         
 if __name__ == '__main__':
     p = Param()

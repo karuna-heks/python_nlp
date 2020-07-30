@@ -95,7 +95,7 @@ for name, val, i in zip(analyzer.getList().keys(),
 print("Выполняется парсинг текстов...")
 parser = CorpusParser(language = p.readLanguage(), 
                       stemType = p.readStemType(),
-                      stopWordsType = p.readStopWordsType)
+                      stopWordsType = p.readStopWordsType())
 tempText = ''
 pb = ProgressBar(maxValue=db.getTextsSize(),
                  suffix='обработано')
@@ -110,7 +110,7 @@ for i in range(db.getTextsSize()):
 
 
 print("Сохранение локальных словарей в базе данных...")
-d = Dictionary()
+d = Dictionary(p.readMetric())
 for i in range(db.getTextsSize()):
     d.addData(db.getTextsData('formattedText', i+1)[0][0])
     tempDict = d.getLastDictionary()
@@ -118,7 +118,14 @@ for i in range(db.getTextsSize()):
     tempStr = tempStr.replace('"', '""') 
     db.updateTexts('localDictionary', tempStr, i+1)
     # <- добавление в БД локальных словарей в виде json строки
+d.idfGlobalCalc()
 
+v = Vectorizer(p.readMetric())
+v.addGlobDict(d.getGlobalDictionary())
+
+if isinstance(p.readMaxFeatures(), int):
+    d.reduceFeatures(p.readMaxFeatures())
+    v.addIdfDict(d.getTfidfDict())
 
 if p.saveDictionary() == True:
     print("Добавление глобального словаря в базу данных...")
@@ -153,10 +160,6 @@ db.updateInfo('dictionarySize', inputSize, 1)
 print("Создание векторов текстов...")
 pb.new(maxValue=corpusSize,
        suffix="обработано")
-v = Vectorizer(p.readMetric())
-v.addGlobDict(d.getGlobalDictionary())
-v.addIdfDict(idfTable, d.getCorpusSize())
-
 for i in range(corpusSize):
     tempStr = db.getTextsData('localDictionary', i+1)[0][0]
     tempDict = json.loads(tempStr)
@@ -180,9 +183,8 @@ for i in range(corpusSize):
 if p.saveDictionary() == True:
     print("Обновление глобального словаря...")
     tempDict = d.getGlobalDictionary()
-    v.tfidfGlobalCalc()
-    tfidfArray = v.getTfidfGlobal()
-    idfArray = v.getIdf()
+    tfidfArray = d.getTfidfGlobal()
+    idfArray = d.getIdfGlobal()
     pb.new(maxValue=d.getGlobalSize(),
            suffix='готово')
     for i in range(len(tfidfArray)):
