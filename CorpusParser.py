@@ -1,5 +1,5 @@
 """
-v0.19.3
+v0.19.4
 CorpusParser - файл, содержащий методы и классы для парсинга 
 исходных текстов:
     1. Разбивка текста на отдельные токены (слова)
@@ -82,17 +82,19 @@ class CorpusParser:
         -------
         None.
         """
-        if (language == 'russian' or language == 'rus'):
+        lang = language.lower()
+        if (lang == 'russian' or lang == 'rus'):
             self._language = 'rus'
-        elif (language == 'english' or language == 'eng'):
+        elif (lang == 'english' or lang == 'eng'):
             self._language = 'eng'
-        elif (language == 'multilanguage' or language == 'mul'):
+        elif (lang == 'multilanguage' or lang == 'mul'):
             sys.exit("Error: multilanguage is not available")
             #!!! использование одновременно двух языков пока недоступно
             self._language = 'mul' 
-            
-        if (stemType == 'stemmer' or stemType == 'stem' or 
-            stemType == 'stemming'):
+        
+        stem = stemType.lower()
+        if (stem == 'stemmer' or stem == 'stem' or 
+            stem == 'stemming'):
             self._stemType = 'stem'
             if self._language == 'rus':
                 self._snowball = SnowballStemmer('russian')
@@ -102,24 +104,25 @@ class CorpusParser:
                 self._snowball = SnowballStemmer('russian')
                 self._porter = PorterStemmer()
                 
-        elif (stemType == 'lemmatization' or stemType == 'lemmatizing' or 
-            stemType == 'lemma'):
+        elif (stem == 'lemmatization' or stem == 'lemmatizing' or 
+            stem == 'lemma'):
             self._stemType = 'lemma'
             if self._language == 'rus':
                 self._mystem = Mystem()
             elif self._language == 'eng':
                 self._lemma = WordNetLemmatizer()
             elif self._language == 'mul':
+                self._mystem = Mystem()
                 self._lemma = WordNetLemmatizer()
-            self._mystem = Mystem()
                 
-        elif (stemType == 'none' or stemType == 'no' or stemType == 'not' or
-              stemType == 'n'):
+        elif (stem == 'none' or stem == 'no' or stem == 'not' or
+              stem == 'n'):
             self._stemType = 'none'
         else:
             self._stemType = 'none'
             
-        if (stopWordsType == 'default'):
+        stopWord = stopWordsType.lower()
+        if (stopWord == 'default'):
             self._stopWordsType = 'default'
             #!!! продумать логику использования параметра стопВордс
             self._initStopWords()
@@ -193,6 +196,8 @@ class CorpusParser:
             elif (self._stemType == 'stem'):
                 word = self._snowball.stem(word)
         
+        elif (self._language == 'mul'):
+            sys.exit("Error: Multilanguage is not available")
         return word
 
     

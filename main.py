@@ -51,16 +51,13 @@ db.updateInfo('corpus_ID', corpusID, 1)
 db.updateInfo('compilationTime', compilationTime, 1)
 
    
-# pb = ProgressBar(
-analyzer = CorpusAnalyzer() # аналайзер дополняет БД оставшимися данными
 
-op = OpenTexts(p.readDocCorpusPath()) # иниц. класса для работы с исходными
-# текстами
-op.searchFolder() # выбор метода для своего типа исходных данных 
-# (поиск папок с файлами, файлов с текстами или другой)  
-# searchFolder, searchTxt, searchAlt
-# !!! мб перенести выбор метода в json параметры. а внутри класса пусть
-# сам определяет, какой метод надо использовать, на основе параметров 
+
+analyzer = CorpusAnalyzer() # аналайзер дополняет БД оставшимися данными (на
+# данный момент пока только списком категорий)
+op = OpenTexts(p.readSource(), p.readDocCorpusPath()) # иниц. класса для 
+# работы с исходными текстами
+
 print("Открытие исходных текстов...")
 while(op.hasNext()): # проверка на наличие следующего текста
     tempData = op.getNext() # извлечение базовой информации из 
@@ -266,6 +263,7 @@ plt.xlabel('epoch')
 plt.legend(['loss', 'val_loss'], loc='upper left')
 plt.grid(True)
 plt.show()
+print('Готово!')
 
 
 

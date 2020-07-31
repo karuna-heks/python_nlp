@@ -1,5 +1,5 @@
 """
-v0.4.2
+v0.5.1
 OpenTexts - файл, содержащий класс для открытия текстовых файлов, считывания
 текстов. Позволяет работать со следующей структурой файлов:
     - исходная папка содержит n других папок. каждая папка является сборником
@@ -22,6 +22,7 @@ OpenTexts - файл, содержащий класс для открытия т
 
 import os
 import sys
+from nltk.corpus import brown
 
 class OpenTexts:
     
@@ -43,17 +44,23 @@ class OpenTexts:
     _checkIncText = False # проверка разрешения на инкремент номера текста
     
     _countText = 0
+    _source = ''
     
-    def __init__(self, path):
+    def __init__(self, source:str = "file", path:str="none"):
+        self._source = source
         self._path = path
+        if self._source == 'file':
+            self._searchFolder()
+        elif self._source == 'brown':
+            self._searchBrown()
     
-    def searchFolder(self):
+    def _searchFolder(self):
         self._topicNameList = os.listdir(self._path)
         self._chooseMethod = 1
         #!!!добавить: проверка на то, что кол-во списков папок больше 0
         
-    # def searchTxt(self):
-        #!!!добавить: реализация метода
+    def _searchBrown(self):
+        self._chooseMethod = 2
         
     # def searchAlt(self):
         #добавить: реализация метода
@@ -62,7 +69,7 @@ class OpenTexts:
         if self._chooseMethod == 1:
             return self._hasNextSearchFolder()
         elif self._chooseMethod == 2:
-            return self._hasNextSearchTxt()
+            return self._hasNextSearchBrown()
         elif self._chooseMethod == 3:
             return self._hasNextSearchAlt()
         else: 
@@ -74,7 +81,7 @@ class OpenTexts:
         if self._chooseMethod == 1:
             return self._getNextSearchFolder()
         elif self._chooseMethod == 2:
-            return self._getNextSearchTxt()
+            return self._getNextSearchBrown()
         elif self._chooseMethod == 3:
             return self._getNextSearchAlt()
         else: 
@@ -151,15 +158,35 @@ class OpenTexts:
         return self._tempData
     
     
+           # ' '.join(brown.words(fileids = 'cr07')) 
+    def _hasNextSearchBrown(self):
+        sizeOfBrownCorpus = len(brown.fileids())
+        if self._countText < sizeOfBrownCorpus:
+            self._isReady = True
+            self._nameOfNextFile = brown.fileids()[self._countText]
+            return True
+        else: 
+            self._isReady = False
+            return False
+        # <- выполнить проверку на то, что до этого не были выданы все 
+        # тексты и дать разрешение на получение следующего
+        
     
-    def _hasNextSearchTxt(self):
-        #!!!добавить: реализация метода
-        return True
+    def _getNextSearchBrown(self):
+        if (self._isReady):
+            self._isReady = False
+        else:
+            sys.exit("Error: End of text list or No permission to \
+                     iterate text number")
+        
+        self._tempData['name'] = self._nameOfNextFile
+        self._tempData['topicName'] = brown.categories(self._nameOfNextFile)[0]
+        self._tempData['baseText'] = ' '.join(
+            brown.words(self._nameOfNextFile))
+        return self._tempData
     
-    def _getNextSearchTxt(self):
-        #!!!добавить: реализация метода
-        return 0
-    
+        
+        # <- запросить очередной текст
     
     def _hasNextSearchAlt(self):
         #!!!добавить: реализация метода

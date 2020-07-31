@@ -32,6 +32,9 @@ class Param:
     def readLanguage(self):
         return json.loads(self.json_param).get('language')
     
+    def readSource(self):
+        return json.loads(self.json_param).get('source')
+    
     def readStemType(self):
         return json.loads(self.json_param).get('stemType')
     
