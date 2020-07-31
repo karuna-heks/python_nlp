@@ -277,9 +277,10 @@ class CorpusParser:
         """
         newWordList = []
         for word in wordList:
-            if word not in self._stopList:
-                if len(word) > 1:
-                    newWordList.append(word)
+            if isinstance(word, str):
+                if word not in self._stopList:
+                    if len(word) > 1:
+                        newWordList.append(word)
         return newWordList
                
             
@@ -290,7 +291,7 @@ class CorpusParser:
         их из списка слов в методе _deleteStopWords
         Returns None.
         """
-        stopListTrash = ['', ' ', '\n']
+        stopListTrash = ['', '  ', '\t', '\n']
         self._stopList.extend(stopListTrash)
         if (self._language == 'eng' or self._language == 'mul'):
             self._stopList.extend(stopwords.words('english'))

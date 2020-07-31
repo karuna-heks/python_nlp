@@ -124,7 +124,8 @@ v.addGlobDict(d.getGlobalDictionary())
 
 if isinstance(p.readMaxFeatures(), int):
     d.reduceFeatures(p.readMaxFeatures())
-    v.addIdfDict(d.getTfidfDict())
+    if (p.readMetric() == 'tfidf'):
+        v.addIdfDict(d.getTfidfDict())
 
 if p.saveDictionary() == True:
     print("Добавление глобального словаря в базу данных...")
