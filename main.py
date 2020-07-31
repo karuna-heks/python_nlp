@@ -38,6 +38,7 @@ db.updateCorpus('stemType', p.readStemType(), corpusID) #
 db.updateCorpus('stopWordsType', p.readStopWordsType(), corpusID) #
 db.updateCorpus('metric', p.readMetric(), corpusID) #
 db.updateCorpus('compilationTime', compilationTime, corpusID)
+db.updateCorpus('source', p.readSource(), corpusID)
 
 
 db.addInfo()
@@ -49,6 +50,7 @@ db.updateInfo('stopWordsType', p.readStopWordsType(), 1)
 db.updateInfo('metric', p.readMetric(), 1)
 db.updateInfo('corpus_ID', corpusID, 1)
 db.updateInfo('compilationTime', compilationTime, 1)
+db.updateInfo('source', p.readSource(), 1)
 
    
 
