@@ -11,10 +11,12 @@ $ pip install numpy scipy
 $ pip install keras
 $ pip install --user -U nltk
 $ pip install pymystem3
+$ pip install corus
 nltk.download('averaged_perceptron_tagger')
 nltk.download('wordnet')
 nltk.download('stopwords')
 nltk.download('brown')
+wget https://github.com/yutkin/Lenta.Ru-News-Dataset/releases/download/v1.0/lenta-ru-news.csv.gz
 ```
 
 **Настроить параметры модели**

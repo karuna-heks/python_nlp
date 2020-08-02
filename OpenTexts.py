@@ -1,5 +1,5 @@
 """
-v0.5.1
+v0.6.1
 OpenTexts - файл, содержащий класс для открытия текстовых файлов, считывания
 текстов. Позволяет работать со следующей структурой файлов:
     - исходная папка содержит n других папок. каждая папка является сборником
@@ -23,6 +23,7 @@ OpenTexts - файл, содержащий класс для открытия т
 import os
 import sys
 from nltk.corpus import brown
+from corus import load_lenta
 
 class OpenTexts:
     
@@ -53,6 +54,8 @@ class OpenTexts:
             self._searchFolder()
         elif self._source == 'brown':
             self._searchBrown()
+        elif (self._source == 'lenta.ru') or (self._source == 'lenta'):
+            self._searchLenta()
     
     def _searchFolder(self):
         self._topicNameList = os.listdir(self._path)
@@ -62,8 +65,15 @@ class OpenTexts:
     def _searchBrown(self):
         self._chooseMethod = 2
         
-    # def searchAlt(self):
-        #добавить: реализация метода
+    def _searchLenta(self):
+        path = 'lenta-ru-news.csv.gz'
+        self._records = load_lenta(path)
+        self._chooseMethod = 3
+        self._lentaListOfThemes = {"Бизнес", "Госэкономика", "Кино",
+                                   "Люди", "Музыка", "Наука", 
+                                   "Проишествия", "Следствие и суд",
+                                   "Украина", "Футбол"} 
+        # <- 10 тем. в сумме 102.043 текстов
         
     def hasNext(self):
         if self._chooseMethod == 1:
@@ -71,7 +81,7 @@ class OpenTexts:
         elif self._chooseMethod == 2:
             return self._hasNextSearchBrown()
         elif self._chooseMethod == 3:
-            return self._hasNextSearchAlt()
+            return self._hasNextSearchLenta()
         else: 
             return False
         
@@ -83,7 +93,7 @@ class OpenTexts:
         elif self._chooseMethod == 2:
             return self._getNextSearchBrown()
         elif self._chooseMethod == 3:
-            return self._getNextSearchAlt()
+            return self._getNextSearchLenta()
         else: 
             return False
   
@@ -157,8 +167,7 @@ class OpenTexts:
             self._textNameList[self._iterText-1])
         return self._tempData
     
-    
-           # ' '.join(brown.words(fileids = 'cr07')) 
+
     def _hasNextSearchBrown(self):
         sizeOfBrownCorpus = len(brown.fileids())
         if self._countText < sizeOfBrownCorpus:
@@ -184,17 +193,39 @@ class OpenTexts:
         self._tempData['baseText'] = ' '.join(
             brown.words(self._nameOfNextFile))
         return self._tempData
-    
-        
         # <- запросить очередной текст
     
-    def _hasNextSearchAlt(self):
-        #!!!добавить: реализация метода
+    
+    def _hasNextSearchLenta(self):
+        """
+        Делаем некст(рекорд). если открылся, то сохраняем в параметр,
+        если нет, то отправляем фолз
+        """
+        try:
+            self._record = next(self._records)
+            while not (self._record.tags in self._lentaListOfThemes):
+                self._record = next(self._records)
+        except StopIteration:
+            return False
+        
+        self._isReady = True
         return True
     
-    def _getNextSearchAlt(self):
-        #!!!добавить: реализация метода
-        return 0
+    def _getNextSearchLenta(self):
+        if (self._isReady):
+            self._isReady = False
+        else:
+            sys.exit("Error: End of text list or No permission to \
+                     iterate text number")
+         
+        self._tempData['name'] = self._parseLentaTitle(self._record.title)
+        self._tempData['topicName'] = self._record.tags
+        self._tempData['baseText'] = self._record.text.replace('"', '""') 
+        return self._tempData
+    
+    def _parseLentaTitle(self, title):
+        return title.replace("\xa0", " ").replace('"', '""') 
+    
     
     # -> очень ненадёжный метод. нужно как следует его протестировать и
     # пофиксить

@@ -2,6 +2,7 @@ sqlTest.py
 testJson.py
 tests.py
 param.json
+lenta-ru-news.csv.gz
 
 *localtest.py
 !keras_localtest.py
