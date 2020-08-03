@@ -1,5 +1,5 @@
 """
-v0.6.9
+v0.6.10
 Dictionary - файл, содержащий класс для работы со словарем/словарями 
 корпуса текстов
 
@@ -47,7 +47,9 @@ class Dictionary:
                 self._last[word] = 1
             else: 
                 self._last[word] = self._last[word] + 1
-        
+        if len(self._last) < 1:
+            sys.exit("Error: Local dictionary size is zero")
+            
         self._addToGlobal(self._last)
         # метод получает текст, получает из него 
         # локальный словарь, затем дополняет им глобальный 
@@ -89,18 +91,8 @@ class Dictionary:
                 self._globalDict[key] = self._globalDict[key] + val
                 self._t.setVal(key, "count", self._t.getVal(key, "count") + 1)
         self._corpusSize += 1 # подсчёт числа текстов пройденных
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
     
     def idfGlobalCalc(self):
         if ((len(self._t.getRows()) != 0) and \
@@ -199,10 +191,7 @@ class Dictionary:
                 break
             del dictMain[key]
     
-    
-    
-    
-    
+
     
 if __name__ == '__main__':
     d = Dictionary()

@@ -1,5 +1,5 @@
 """
-v0.2.3
+v0.4.0
 Param - класс, необходимый для работы с файлом параметров в формате json
 
 
@@ -41,8 +41,7 @@ class Param:
     def readStopWordsType(self):
         return json.loads(self.json_param).get('stopWordsType')
     
-    def readMetric(self):
-        return json.loads(self.json_param).get('metric')
+
     
     def readDBCorpusPath(self):
         return json.loads(self.json_param).get('dbCorpusPath')
@@ -53,14 +52,30 @@ class Param:
     def saveDictionary(self):
         return json.loads(self.json_param).get('saveDictionary')
         
-    def getTrainPercentage(self):
-        return json.loads(self.json_param).get('trainPercentage')
-    
     def getPathToDBForReport(self):
         return json.loads(self.json_param).get('pathToDBForReport')
     
+    
+    
+    def readMetric(self):
+        return json.loads(self.json_param).get('metric')
+    
     def readMaxFeatures(self):
         return json.loads(self.json_param).get('maxFeatures')
+    
+    
+    
+    #%% Neural Network Parameters
+    def readEpochs(self):
+        return json.loads(self.json_param).get('epochs')
+    
+    def getTrainPercentage(self):
+        return json.loads(self.json_param).get('trainPercentage')
+    
+    def shuffleData(self):
+        return json.loads(self.json_param).get('shuffleData')
+    
+    
         
 if __name__ == '__main__':
     p = Param()

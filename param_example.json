@@ -8,7 +8,9 @@
     "maxFeatures": 1000,
     "dbCorpusPath": "/mnt/hgfs/vmware D/dataBase/myCorpus.db",
     "docCorpusPath": "/mnt/hgfs/vmware D/topicsSmall",
-    "trainPercentage": 70, 
+    "epochs": 5,
+    "shuffleData": false,
+    "trainPercentage": 80, 
     "saveDictionary": false,
     "pathToDBForReport": "/mnt/hgfs/vmware D/dataBase/102.db"
 }

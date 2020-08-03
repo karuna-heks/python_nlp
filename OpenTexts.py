@@ -1,5 +1,5 @@
 """
-v0.6.1
+v0.6.3
 OpenTexts - файл, содержащий класс для открытия текстовых файлов, считывания
 текстов. Позволяет работать со следующей структурой файлов:
     - исходная папка содержит n других папок. каждая папка является сборником
@@ -203,8 +203,13 @@ class OpenTexts:
         """
         try:
             self._record = next(self._records)
-            while not (self._record.tags in self._lentaListOfThemes):
+            tagNotInList = not (self._record.tags in self._lentaListOfThemes)
+            textNotEmpty = len(self._record) > 10
+            
+            while tagNotInList or textNotEmpty:
                 self._record = next(self._records)
+                tagNotInList = not (self._record.tags in self._lentaListOfThemes)
+                textNotEmpty = len(self._record) > 10
         except StopIteration:
             return False
         

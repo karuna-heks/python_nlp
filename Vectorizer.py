@@ -1,5 +1,5 @@
 """
-v0.3.15
+v0.3.16
 Vectorizer - файл, содержащий класс для формирования векторов 
 текстов на основе набора токенов и/или локальных и глобального словарей 
 
@@ -13,7 +13,6 @@ Vectorizer - файл, содержащий класс для формирова
 могут работать только вместе
 #!!! - реализовать:
 - векторизация на основе метрик:
-    - tf-idf
     - word2vec
     - n-gramms
 - формирование матрицы текста с возможностью подачи текста 
@@ -33,7 +32,6 @@ class Vectorizer:
     _metric = "" # выбор метрики вычисления векторов
     _idfArray = None
     _idfDict = None
-    # _tfidfGlobalArray = None
     
     def __init__(self, metricType:str="tf"):
         self._metric = metricType
@@ -49,42 +47,7 @@ class Vectorizer:
         for key, i in zip(self._globalDict.keys(), range(globalDictSize)):
             self._idfArray[i] = self._idfDict[key]
             
-        
-    # def idfCalc(self):
-    #     if ((len(self._table.getRows()) != 0) and \
-    #         (len(self._table.getColumns()) != 0)):
-    #         for key in self._globalDict.keys():
-    #             idf = log10(self._corpusSize / self._table.getVal(key, "count"))
-    #             # <- вычисление idf, путём деления размера корпуса на
-    #             # количество текстов, в котором встречается слово key
-    #             self._table.setVal(key, "idf", idf)
-    #             # <- добавление результата вычисления в таблицу 
-    #     else:
-    #         sys.exit("Error: Additional Table with IDF not have enough \
-    #                  rows or columns")
-        
-        
-    #     self._idfArray = np.zeros(len(self._globalDict), float)
-    #     # <- создание пустого массива для значений idf
-    #     for key, i in zip(self._globalDict.keys(), 
-    #                       range(len(self._globalDict))):
-    #         self._idfArray[i] = self._table.getVal(key, "idf")
-    #     # <- добавление idf параметра в массив
-    #     self._tfidfGlobalCalc()
-        
-    # def getIdf(self):
-    #     return self._idfArray
-                   
-    # def _tfidfGlobalCalc(self):
-    #     self._tfidfGlobalArray = np.zeros(len(self._globalDict), float)
-    #     maxVal = max(self._globalDict.values())
-    #     for key, val, i in zip(self._globalDict.keys(), 
-    #                       self._globalDict.values(),
-    #                       range(len(self._globalDict))):
-    #         self._tfidfGlobalArray[i] = (val / maxVal) * self._idfArray[i]
-            
-    # def getTfidfGlobal(self):
-    #     return self._tfidfGlobalArray
+    
                  
     
     def getVecFromDict(self, localDict): 
@@ -109,7 +72,9 @@ class Vectorizer:
             npArray = npArray/la.norm(npArray)
         # <- если выбрана метрика tfidf, то домножаем tf на массив с
             #idf параметрами каждого слова и снова нормируем его
-            
+        if npArray.sum() <= 0:
+            sys.exit("Error: Text vector sum is zero")
+        
         return list(npArray)
     # <- метод получает словарь, содержащий все слова определённого текста
     # и сравнивая его содержимое с глобальным словарём, который должен

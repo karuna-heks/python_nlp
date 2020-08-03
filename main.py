@@ -77,7 +77,8 @@ while(op.hasNext()): # проверка на наличие следующего
     # он запоминает имена топиков, присваивает им имена и, в данном месте,
     # отправляет имена в БД, для отчётности и для дальнейшего формирования
     # выходного вектора.
-    
+
+
    
 print("\nОбновление списка тем...")
 for name, val, i in zip(analyzer.getList().keys(), 
@@ -89,7 +90,8 @@ for name, val, i in zip(analyzer.getList().keys(),
     db.updateTopicList('numOfTexts', analyzer.getTopicCount(name), i+1)
     # <- обновление информации в таблице со списком топиков
     # общая информация, для отчетности
-    
+analyzer = None
+
 
 print("Выполняется парсинг текстов...")
 parser = CorpusParser(language = p.readLanguage(), 
@@ -106,7 +108,10 @@ for i in range(db.getTextsSize()):
 # <- выполняется полный проход по всем сырым текстам в бд
 # забираются сырые тексты, отправляются на очистку
 # возвращаются тексты после фильтрации и отправляются в БД обратно
-
+    
+op = None
+parser = None
+# <- Очистка ненужных объектов (OpenTexts и CorpusParser)
 
 print("Сохранение локальных словарей в базе данных...")
 d = Dictionary(p.readMetric())
@@ -195,7 +200,10 @@ if p.saveDictionary() == True:
         pb.inc()
         # <- добавление глобального словаря в бд, целиком
         #!!! нужно пофиксить. работает слишком медленно
-        
+d = None
+v = None
+# <- Очистка ненужных объектов (Dictionary и Vectorizer)
+
 #%%
 #!!! извлечение данных из генератора данных
 print("Извлечение векторов из базы данных...")
@@ -209,8 +217,9 @@ ds = tf.data.Dataset.from_generator(
 
 #%%
 print("Фомирование данных для обучения...")
-ds = ds.shuffle(buffer_size=corpusSize,
-                reshuffle_each_iteration=False)
+if p.shuffleData():
+    ds = ds.shuffle(buffer_size=corpusSize,
+                    reshuffle_each_iteration=False)
 trainSize = int(corpusSize*p.getTrainPercentage()/100)
 ds_train = ds.take(trainSize)
 ds_val = ds.skip(trainSize)
@@ -223,18 +232,20 @@ print("Создание нейросетевой модели...")
 model = tf.keras.Sequential()
 
 model.add(layers.Dense(inputSize, activation='relu'))
-model.add(layers.Dense(20, activation='relu'))
-model.add(layers.Dense(20, activation='relu'))
+model.add(layers.Dense(100, activation='relu'))
+model.add(layers.Dense(50, activation='relu'))
 model.add(layers.Dense(outputSize, activation='softmax'))
 
-model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
+model.compile(optimizer=tf.keras.optimizers.RMSprop(0.001),
               loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
 #%%
 print("Начало процесса обучения сети...")
+startTime = time.time() 
 history = model.fit(ds_train,
-                    epochs=10,
+                    epochs=p.readEpochs(),
                     validation_data=ds_val)
+endTime = time.time() 
 
 #%%
 
@@ -263,4 +274,39 @@ plt.show()
 print('Готово!')
 
 
+#%% формируем выходные данные
+print("Фомирование выходных данных...")
+resultFull = json.dumps(history.history)
+resultFull = resultFull.replace('"', '""') 
+catAccArray = history.history['categorical_accuracy']
+resultVal1 = json.dumps(catAccArray[len(catAccArray)-1]) 
+valCatAccArray = history.history['val_categorical_accuracy']
+resultVal2 = json.dumps(valCatAccArray[len(valCatAccArray)-1]) 
+learningTime = json.dumps(endTime-startTime)
+compilationTime2 = "{0}-{1}-{2} {3}-{4}".format(t.tm_year, t.tm_mon, 
+                                               t.tm_mday, t.tm_hour, 
+                                               t.tm_min)
+nameOfSavedModel = "model_"+p.readName()+"_"+compilationTime2+".h5"
+neuralNetworkStruct = json.dumps(nameOfSavedModel)
+neuralNetworkStruct = neuralNetworkStruct.replace('"', '') 
+model.save("savedModels/"+nameOfSavedModel)
+
+
+
+#%% загружаем выходные данные в бд
+print("Загрузка выходных данных в БД...")
+db.updateCorpus('resultVal1', resultVal1, corpusID)
+db.updateCorpus('resultVal2', resultVal2, corpusID)
+db.updateCorpus('resultFull', resultFull, corpusID)
+db.updateCorpus('learningTime', learningTime, corpusID)
+db.updateCorpus('compilationTime', compilationTime, corpusID)
+db.updateCorpus('neuralNetworkStruct', neuralNetworkStruct, corpusID)
+
+print("Загрузка выходных данных в БД...")
+db.updateInfo('resultVal1', resultVal1, 1)
+db.updateInfo('resultVal2', resultVal2, 1)
+db.updateInfo('resultFull', resultFull, 1)
+db.updateInfo('learningTime', learningTime, 1)
+db.updateInfo('compilationTime', compilationTime, 1)
+db.updateInfo('neuralNetworkStruct', neuralNetworkStruct, 1)
 

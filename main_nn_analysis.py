@@ -42,8 +42,9 @@ ds = tf.data.Dataset.from_generator(
 
 #%%
 print("Фомирование данных для обучения...")
-# ds = ds.shuffle(buffer_size=corpusSize,
-#                 reshuffle_each_iteration=False)
+if p.shuffleData():
+    ds = ds.shuffle(buffer_size=corpusSize,
+                    reshuffle_each_iteration=False)
 trainSize = int(corpusSize*p.getTrainPercentage()/100)
 ds_train = ds.take(trainSize)
 ds_val = ds.skip(trainSize)
@@ -68,7 +69,7 @@ model.compile(optimizer=tf.keras.optimizers.Adam(0.001),
 print("Начало процесса обучения сети...")
 startTime = time.time() 
 history = model.fit(ds_train,
-                    epochs=10,
+                    epochs=p.readEpochs(),
                     validation_data=ds_val)
 endTime = time.time() 
 #%%
