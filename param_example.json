@@ -1,16 +1,42 @@
 {
-    "name": "testCorpus",
-    "language": "eng",
-    "source": "myCorpusSmall",
-    "stemType": "stemming",
-    "stopWordsType": "none",
+  "fileName": "myCorpus",
+  
+  "source": {
+    "database": "lenta",
+    "corpusPath": "/mnt/hgfs/vmware D/topics"
+  },
+
+  "parser": {
+    "language": "rus",
+    "stemType": "stem",
+    "stopWordsType": "default"
+  },
+  
+  "featureExtraction": {
+    "ngramm": "unigramma",
     "metric": "tfidf",
-    "maxFeatures": 1000,
-    "dbCorpusPath": "/mnt/hgfs/vmware D/dataBase/myCorpus.db",
-    "docCorpusPath": "/mnt/hgfs/vmware D/topicsSmall",
+    "maxFeatures": 1000
+  },
+  
+  "neuralNetwork": {
     "epochs": 5,
     "shuffleData": false,
-    "trainPercentage": 80, 
-    "saveDictionary": false,
-    "pathToDBForReport": "/mnt/hgfs/vmware D/dataBase/102.db"
+    "trainPercentage": 80,
+    "inputLayer": "relu",
+    "hiddenLayers": [
+      {"relu": 50},
+      {"relu": 50},
+      {"relu": 10}
+    ],
+    "outputLayer": "softmax",
+    
+    "optimizer-doesNotWork": "RMSprop",
+    "loss-doesNotWork": "CategoricalCrossentropy"
+  },
+  
+  "database": {
+    "dbCorpusPath": "/mnt/hgfs/vmware D/dataBase/myCorpus.db",
+    "pathToDBForReport": "/mnt/hgfs/vmware D/102.db",
+    "saveDictionary": true
+  }
 }
