@@ -1,5 +1,5 @@
 """
-v0.6.3
+v0.6.6
 OpenTexts - файл, содержащий класс для открытия текстовых файлов, считывания
 текстов. Позволяет работать со следующей структурой файлов:
     - исходная папка содержит n других папок. каждая папка является сборником
@@ -13,7 +13,6 @@ OpenTexts - файл, содержащий класс для открытия т
 #!!! - добавить описание общее
 #!!! - добавить описание каждого метода
 #!!! - удалить ненужные комментарии с описанием
-#!!! - удалить ненужные закомментированные print'ы
 #!!! - реализовать недостающие методы
 #!!! - реализовать нормальный итератор
 #!!! - реализовать обработчики ошибок
@@ -73,7 +72,7 @@ class OpenTexts:
                                    "Люди", "Музыка", "Наука", 
                                    "Происшествия", "Следствие и суд",
                                    "Украина", "Футбол"} 
-        # <- 10 тем. в сумме 102.043 текстов
+        # <- 10 тем. в сумме 102.043-1 текстов
         
     def hasNext(self):
         if self._chooseMethod == 1:
@@ -204,12 +203,12 @@ class OpenTexts:
         try:
             self._record = next(self._records)
             tagNotInList = not (self._record.tags in self._lentaListOfThemes)
-            textNotEmpty = len(self._record) > 10
+            textIsEmpty = len(self._record.text) < 10
             
-            while tagNotInList or textNotEmpty:
+            while tagNotInList or textIsEmpty:
                 self._record = next(self._records)
                 tagNotInList = not (self._record.tags in self._lentaListOfThemes)
-                textNotEmpty = len(self._record) > 10
+                textIsEmpty = len(self._record.text) < 10
         except StopIteration:
             return False
         
