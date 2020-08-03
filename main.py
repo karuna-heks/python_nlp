@@ -210,7 +210,7 @@ ds = tf.data.Dataset.from_generator(
 #%%
 print("Фомирование данных для обучения...")
 ds = ds.shuffle(buffer_size=corpusSize,
-                reshuffle_each_iteration=True)
+                reshuffle_each_iteration=False)
 trainSize = int(corpusSize*p.getTrainPercentage()/100)
 ds_train = ds.take(trainSize)
 ds_val = ds.skip(trainSize)
@@ -218,12 +218,6 @@ ds = None
 ds_train = ds_train.batch(30)
 ds_val = ds_val.batch(30)
 
-# heh = 1
-# for next_el in ds_train:
-#     tf.print(next_el)
-#     heh = next_el
-# for next_el in ds_val:
-#     tf.print(next_el)
 #%%
 print("Создание нейросетевой модели...")
 model = tf.keras.Sequential()
@@ -239,7 +233,7 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
 #%%
 print("Начало процесса обучения сети...")
 history = model.fit(ds_train,
-                    epochs=20,
+                    epochs=10,
                     validation_data=ds_val)
 
 #%%

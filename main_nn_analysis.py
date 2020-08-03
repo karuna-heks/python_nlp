@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from DbInteraction import DbInteraction
 from Param import Param
 import time
@@ -43,8 +42,8 @@ ds = tf.data.Dataset.from_generator(
 
 #%%
 print("Фомирование данных для обучения...")
-ds = ds.shuffle(buffer_size=corpusSize,
-                reshuffle_each_iteration=True)
+# ds = ds.shuffle(buffer_size=corpusSize,
+#                 reshuffle_each_iteration=False)
 trainSize = int(corpusSize*p.getTrainPercentage()/100)
 ds_train = ds.take(trainSize)
 ds_val = ds.skip(trainSize)
@@ -58,18 +57,18 @@ print("Создание нейросетевой модели...")
 model = tf.keras.Sequential()
 
 model.add(layers.Dense(inputSize, activation='relu'))
-model.add(layers.Dense(20, activation='relu'))
-model.add(layers.Dense(20, activation='relu'))
+model.add(layers.Dense(100, activation='relu'))
+model.add(layers.Dense(50, activation='relu'))
 model.add(layers.Dense(outputSize, activation='softmax'))
 
-model.compile(optimizer=tf.keras.optimizers.RMSprop(0.01),
+model.compile(optimizer=tf.keras.optimizers.Adam(0.001),
               loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
 
 print("Начало процесса обучения сети...")
 startTime = time.time() 
 history = model.fit(ds_train,
-                    epochs=100,
+                    epochs=10,
                     validation_data=ds_val)
 endTime = time.time() 
 #%%

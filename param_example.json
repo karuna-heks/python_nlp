@@ -10,5 +10,5 @@
     "docCorpusPath": "/mnt/hgfs/vmware D/topicsSmall",
     "trainPercentage": 70, 
     "saveDictionary": false,
-    "pathToDBForReport": "/mnt/hgfs/vmware D/dataBase/27.db"
+    "pathToDBForReport": "/mnt/hgfs/vmware D/dataBase/102.db"
 }
