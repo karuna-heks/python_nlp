@@ -1,5 +1,5 @@
 """
-v0.19.4
+v0.20.4
 CorpusParser - файл, содержащий методы и классы для парсинга 
 исходных текстов:
     1. Разбивка текста на отдельные токены (слова)
@@ -57,7 +57,7 @@ class CorpusParser:
     _stopWordsType = None
     
     def __init__(self, language: str = 'eng', stemType: str = 'stemming',
-                 stopWordsType: str = 'default'):
+                 stopWordsType: str = 'default', ngram: str = 'unigram'):
         """
         В конструкторе класса выполняется определение дальнейших параметров,
         которые будут использоваться при выполнении обработки текстов
@@ -82,20 +82,13 @@ class CorpusParser:
         -------
         None.
         """
-        lang = language.lower()
-        if (lang == 'russian' or lang == 'rus'):
-            self._language = 'rus'
-        elif (lang == 'english' or lang == 'eng'):
-            self._language = 'eng'
-        elif (lang == 'multilanguage' or lang == 'mul'):
+        self._language = language
+        if self._language == "mul":
             sys.exit("Error: multilanguage is not available")
             #!!! использование одновременно двух языков пока недоступно
-            self._language = 'mul' 
         
-        stem = stemType.lower()
-        if (stem == 'stemmer' or stem == 'stem' or 
-            stem == 'stemming'):
-            self._stemType = 'stem'
+        self._stemType = stemType
+        if (self._stemType == 'stem'):
             if self._language == 'rus':
                 self._snowball = SnowballStemmer('russian')
             elif self._language == 'eng':
@@ -103,10 +96,7 @@ class CorpusParser:
             elif self._language == 'mul':
                 self._snowball = SnowballStemmer('russian')
                 self._porter = PorterStemmer()
-                
-        elif (stem == 'lemmatization' or stem == 'lemmatizing' or 
-            stem == 'lemma'):
-            self._stemType = 'lemma'
+        elif (self._stemType == 'lemma'):
             if self._language == 'rus':
                 self._mystem = Mystem()
             elif self._language == 'eng':
@@ -114,19 +104,13 @@ class CorpusParser:
             elif self._language == 'mul':
                 self._mystem = Mystem()
                 self._lemma = WordNetLemmatizer()
-                
-        elif (stem == 'none' or stem == 'no' or stem == 'not' or
-              stem == 'n'):
-            self._stemType = 'none'
-        else:
-            self._stemType = 'none'
             
-        stopWord = stopWordsType.lower()
-        if (stopWord == 'default'):
-            self._stopWordsType = 'default'
+        self._stopWordsType = stopWordsType
+        if (self._stopWordsType == 'default'):
             #!!! продумать логику использования параметра стопВордс
             self._initStopWords()
         
+        self._ngram = ngram
 
     def parsing(self, text:str):
         """
@@ -163,6 +147,9 @@ class CorpusParser:
         if (self._stemType != 'none'):
             tempList = []
             for w in self._tempWordList:
+                if (w == '.'):
+                    tempList.append('.')
+                    continue
                 tempList.append(self._stemmer(w))
             self._tempWordList = tempList
         return " ".join(self._tempWordList)
@@ -240,14 +227,31 @@ class CorpusParser:
             список слов в тексте.
         """
         text = text.lower()
-        if self._language == 'eng':
-            text = re.sub(r"[^a-z]+", " ", text)
-        elif self._language == 'rus':
-            text = re.sub(r"[^а-яё]+", " ", text)
-        elif self._language == 'mul':
-            text = re.sub(r"[^a-zа-яё]+", " ", text)
+        if (self._ngram == "unigram"):
+            if self._language == 'eng':
+                text = re.sub(r"[^a-z]+", " ", text)
+            elif self._language == 'rus':
+                text = re.sub(r"[^а-яё]+", " ", text)
+            elif self._language == 'mul':
+                text = re.sub(r"[^a-zа-яё]+", " ", text)
+            else:
+                sys.exit("Error: unknown language")
+            return text.split(" ")
         else:
-            sys.exit("Error: unknown language")
+            if self._language == 'eng':
+                text = re.sub(r"[^a-z.]+", " ", text)
+            elif self._language == 'rus':
+                text = re.sub(r"[^а-яё.]+", " ", text)
+            elif self._language == 'mul':
+                text = re.sub(r"[^a-zа-яё.]+", " ", text)
+            else:
+                sys.exit("Error: unknown language")
+            text = re.sub(r"[a-zа-яё]{0,0}[\s.]*[.]+[\s.]*[a-zа-яё]{0,0}", 
+                          " . ", text)
+            # <- замена любой последовательности из точек и пробелов между
+            # словами на " . "
+            return text.split(" ")
+            
         # <- перевод в нижний регистр и замена небуквенных символов пробелами
         #!!! продумать, что делать с цифрами. нужны ли они, или 
         # их нужно как другой мусор удалять
@@ -258,7 +262,9 @@ class CorpusParser:
         # [^a-zа-яё]+ - последовательности между словами русс и англ (нижн)
         # [^a-zа-яA-ZА-ЯёЁ0-9]+ - посл. межд. словами и цифрами любыми
         # [^a-z]+ - последовательности между словами (англ)
-        return text.split(" ")
+        # [a-zа-яё]{0,0}[\s.]*[.]+[\s.]*[a-zа-яё]{0,0} - последовательность 
+        # из точек и пробелов (должна быть хотя бы 1 точка) между словами
+        
 
     
     def _deleteStopWords(self, wordList):
@@ -279,7 +285,7 @@ class CorpusParser:
         for word in wordList:
             if isinstance(word, str):
                 if word not in self._stopList:
-                    if len(word) > 1:
+                    if (len(word) > 1) or (word == '.'):
                         newWordList.append(word)
         return newWordList
                
@@ -301,7 +307,7 @@ class CorpusParser:
 
 if __name__ == '__main__':
     cp = CorpusParser(language = 'rus', stemType = 'lemma',
-                 stopWordsType = 'default')
+                 stopWordsType = 'default', ngram = "bigram")
     testText1 = """The colour designations for these iron plates are as follows: \
     It is useful to note the colour assignment \
     of these iron plates is consistent with the heavier bumper plates \
@@ -338,5 +344,7 @@ if __name__ == '__main__':
     """
     text = testText2
     text = cp.parsing(text)
+    # print(text.lower())
+    # print(re.sub(r"[^a-zа-яё.]+", " ", text))
     print(text)
     
