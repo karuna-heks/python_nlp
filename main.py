@@ -26,39 +26,39 @@ compilationTime = "{0}.{1}.{2} {3}:{4}".format(t.tm_year, t.tm_mon,
 p = Param() #инициализация класса с параметрами работы
 p.printParam() #вывод списка параметров
 db = DbInteraction() #иниц. класса для работы с БД
-db.initFullAnalysis(p.readDBCorpusPath()) #иниц. класса для работы с БД
+db.initFullAnalysis(p.database.getDbCorpusPath()) #иниц. класса для работы с БД
 # отправка в него пути к БД
 corpusID = db.getCorpusID() #сохранение актуального ID, который
 # является индексом строки в БД
 print("Добавление информации в базу данных...")
-db.updateCorpus('name', p.readName(), corpusID) #добавление начальной инфо
+db.updateCorpus('name', p.getName(), corpusID) #добавление начальной инфо
 # рмации о корпусе. данные считываются с параметров и отправляются
-db.updateCorpus('language', p.readLanguage(), corpusID) #
-db.updateCorpus('stemType', p.readStemType(), corpusID) #
-db.updateCorpus('stopWordsType', p.readStopWordsType(), corpusID) #
-db.updateCorpus('metric', p.readMetric(), corpusID) #
+db.updateCorpus('language', p.parser.getLanguage(), corpusID) #
+db.updateCorpus('stemType', p.parser.getStemType(), corpusID) #
+db.updateCorpus('stopWordsType', p.parser.getStopWordsType(), corpusID) #
+db.updateCorpus('metric', p.featureExtraction.getMetricType(), corpusID) #
 db.updateCorpus('compilationTime', compilationTime, corpusID)
-db.updateCorpus('source', p.readSource(), corpusID)
+db.updateCorpus('source', p.source.getCorpusName(), corpusID)
 
 
 db.addInfo()
-db.updateInfo('name', p.readName(), 1) #добавление начальной инфо
+db.updateInfo('name', p.getName(), 1) #добавление начальной инфо
 # рмации о корпусе. данные считываются с параметров и отправляются
-db.updateInfo('language', p.readLanguage(), 1)
-db.updateInfo('stemType', p.readStemType(), 1)
-db.updateInfo('stopWordsType', p.readStopWordsType(), 1)
-db.updateInfo('metric', p.readMetric(), 1)
+db.updateInfo('language', p.parser.getLanguage(), 1)
+db.updateInfo('stemType', p.parser.getStemType(), 1)
+db.updateInfo('stopWordsType', p.parser.getStopWordsType(), 1)
+db.updateInfo('metric', p.featureExtraction.getMetricType(), 1)
 db.updateInfo('corpus_ID', corpusID, 1)
 db.updateInfo('compilationTime', compilationTime, 1)
-db.updateInfo('source', p.readSource(), 1)
+db.updateInfo('source', p.source.getCorpusName(), 1)
 
    
 
 
 analyzer = CorpusAnalyzer() # аналайзер дополняет БД оставшимися данными (на
 # данный момент пока только списком категорий)
-op = OpenTexts(p.readSource(), p.readDocCorpusPath()) # иниц. класса для 
-# работы с исходными текстами
+op = OpenTexts(p.source.getCorpusName(), p.source.getCorpusPath()) 
+# <- иниц. класса для работы с исходными текстами
 
 print("Открытие исходных текстов...")
 while(op.hasNext()): # проверка на наличие следующего текста
@@ -94,9 +94,9 @@ analyzer = None
 
 
 print("Выполняется парсинг текстов...")
-parser = CorpusParser(language = p.readLanguage(), 
-                      stemType = p.readStemType(),
-                      stopWordsType = p.readStopWordsType())
+parser = CorpusParser(language = p.parser.getLanguage(), 
+                      stemType = p.parser.getStemType(),
+                      stopWordsType = p.parser.getStopWordsType())
 tempText = ''
 pb = ProgressBar(maxValue=db.getTextsSize(),
                  suffix='обработано')
@@ -114,7 +114,7 @@ parser = None
 # <- Очистка ненужных объектов (OpenTexts и CorpusParser)
 
 print("Сохранение локальных словарей в базе данных...")
-d = Dictionary(p.readMetric())
+d = Dictionary(p.featureExtraction.getMetricType())
 pb.new(maxValue=db.getTextsSize(), suffix='cохранено')
 for i in range(db.getTextsSize()):
     d.addData(db.getTextsData('formattedText', i+1)[0][0])
@@ -126,15 +126,15 @@ for i in range(db.getTextsSize()):
     # <- добавление в БД локальных словарей в виде json строки
 d.idfGlobalCalc()
 
-v = Vectorizer(p.readMetric())
+v = Vectorizer(p.featureExtraction.getMetricType())
 v.addGlobDict(d.getGlobalDictionary())
 
-if isinstance(p.readMaxFeatures(), int):
-    d.reduceFeatures(p.readMaxFeatures())
-    if (p.readMetric() == 'tfidf'):
+if isinstance(p.featureExtraction.getMaxFeatures(), int):
+    d.reduceFeatures(p.featureExtraction.getMaxFeatures())
+    if (p.featureExtraction.getMetricType() == 'tfidf'):
         v.addIdfDict(d.getTfidfDict())
 
-if p.saveDictionary() == True:
+if p.database.getSaveDictionaryStatus() == True:
     print("Добавление глобального словаря в базу данных...")
     pb.new(maxValue=d.getGlobalSize(),
            suffix='добавлено')
@@ -187,7 +187,7 @@ for i in range(corpusSize):
     # и отправки этого вектора в БД
     
     
-if p.saveDictionary() == True:
+if p.database.getSaveDictionaryStatus() == True:
     print("Обновление глобального словаря...")
     tempDict = d.getGlobalDictionary()
     tfidfArray = d.getTfidfGlobal()
@@ -217,10 +217,10 @@ ds = tf.data.Dataset.from_generator(
 
 #%%
 print("Фомирование данных для обучения...")
-if p.shuffleData():
+if p.neuralNetwork.getShuffleStatus():
     ds = ds.shuffle(buffer_size=corpusSize,
                     reshuffle_each_iteration=False)
-trainSize = int(corpusSize*p.getTrainPercentage()/100)
+trainSize = int(corpusSize*p.neuralNetwork.getTrainPercentage()/100)
 ds_train = ds.take(trainSize)
 ds_val = ds.skip(trainSize)
 ds = None
@@ -243,7 +243,7 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(0.001),
 print("Начало процесса обучения сети...")
 startTime = time.time() 
 history = model.fit(ds_train,
-                    epochs=p.readEpochs(),
+                    epochs=p.neuralNetwork.getEpochs(),
                     validation_data=ds_val)
 endTime = time.time() 
 
@@ -286,7 +286,7 @@ learningTime = json.dumps(endTime-startTime)
 compilationTime2 = "{0}-{1}-{2} {3}-{4}".format(t.tm_year, t.tm_mon, 
                                                t.tm_mday, t.tm_hour, 
                                                t.tm_min)
-nameOfSavedModel = "model_"+p.readName()+"_"+compilationTime2+".h5"
+nameOfSavedModel = "model_"+p.getName()+"_"+compilationTime2+".h5"
 neuralNetworkStruct = json.dumps(nameOfSavedModel)
 neuralNetworkStruct = neuralNetworkStruct.replace('"', '') 
 model.save("savedModels/"+nameOfSavedModel)

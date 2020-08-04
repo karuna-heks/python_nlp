@@ -1,8 +1,8 @@
 {
-  "fileName": "myCorpus",
+  "fileName": "lenta_stem_tfidf_1000",
   
   "source": {
-    "database": "lenta",
+    "corpusName": "lenta",
     "corpusPath": "/mnt/hgfs/vmware D/topics"
   },
 
@@ -13,7 +13,7 @@
   },
   
   "featureExtraction": {
-    "ngramm": "unigramma",
+    "ngrammType": "unigramma",
     "metric": "tfidf",
     "maxFeatures": 1000
   },
@@ -24,7 +24,7 @@
     "trainPercentage": 80,
     "inputLayer": "relu",
     "hiddenLayers": [
-      {"relu": 50},
+      {"relu": 100},
       {"relu": 50},
       {"relu": 10}
     ],

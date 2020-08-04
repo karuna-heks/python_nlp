@@ -1,0 +1,16 @@
+{
+    "name": "lenta_stem_tfidf_1000",
+    "language": "rus",
+    "source": "lenta",
+    "stemType": "stem",
+    "stopWordsType": "default",
+    "metric": "tfidf",
+    "maxFeatures": 1000,
+    "dbCorpusPath": "/mnt/hgfs/vmware D/dataBase/myCorpus.db",
+    "docCorpusPath": "/mnt/hgfs/vmware D/topics",
+    "epochs": 5,
+    "shuffleData": false,
+    "trainPercentage": 80,
+    "saveDictionary": true,
+    "pathToDBForReport": "/mnt/hgfs/vmware D/dataBase/102.db"
+}
