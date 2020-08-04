@@ -14,6 +14,7 @@
   
   "featureExtraction": {
     "ngrammType": "unigramma",
+    "ignoreWordOrder": true,
     "metric": "tfidf",
     "maxFeatures": 1000
   },

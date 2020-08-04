@@ -1,5 +1,5 @@
 """
-v1.0.4
+v1.1.0
 Param - класс, необходимый для работы с файлом параметров в формате json
 
 #!!! Переработать класс под новый .json формат:
@@ -287,6 +287,17 @@ class FeatureExtractionParam:
         else:
             sys.exit("Error: unknown NgrammType parameter: "+str(result))
     
+    def getIgnoreWordOrderStatus(self):
+        """
+        Игнорировать порядок слов в n-граммах.
+        Если установить значение true, то при составлении словаря, н-граммы,
+        состоящие из одинаковых слов, но в разном порядке, будут считаться
+        одинаковыми
+        
+        Returns:
+        boolean
+        """
+        return json.loads(self.obj.json_param).get('featureExtraction')["ignoreWordOrder"]
     
     def getMetricType(self):
         """

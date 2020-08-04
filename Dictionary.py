@@ -1,9 +1,11 @@
 """
-v0.6.10
+v0.7.0
 Dictionary - файл, содержащий класс для работы со словарем/словарями 
 корпуса текстов
 
 #!!! - добавить описание общее
+#!!! - исправить ошибку добавления точек в словарь, в случае, если они были
+в отпарсеном тексте
 #!!! - перенести глобальные переменные класса внутрь конструктора
 #!!! - перенести класс Dictionary в файл Vectorizer, т.к. они всё равно должны
 работать только вместе
@@ -18,6 +20,8 @@ from utility import Table
 from math import log10
 import sys
 import numpy as np
+import nltk
+from nltk import ngrams
 
 class Dictionary:
     
@@ -32,28 +36,82 @@ class Dictionary:
     
     _wordsList = None # список всех слов в тексте
     
-    def __init__(self, metricType:str="tf"):
+    def __init__(self, metricType:str="tf", ngram:str="unigram", 
+                 ignoreWordOrder:bool=True):
         self._globalDict = {}
         self._last = {}
         self._metric = metricType
+        self._ignoreWordOrder = ignoreWordOrder
+        self._ngram = ngram
         self._t = Table(["count", "idf", "tfidf"])
     
     
     def addData(self, text):
+        """ 
+        public addData(self, text):
+        метод берёт отпарсеный текст и получает из него токены, которые
+        добавляются в локальные и глобальный словарь
+        Returns: none
+        """
         self._last.clear()
-        self._wordsList = text.split(" ")
-        for word in self._wordsList:
-            if self._last.get(word) == None:
-                self._last[word] = 1
-            else: 
-                self._last[word] = self._last[word] + 1
+        if (self._ngram == "unigram"):
+            self._wordsList = text.split(" ")
+            for word in self._wordsList:
+                if self._last.get(word) == None:
+                    self._last[word] = 1
+                else: 
+                    self._last[word] = self._last[word] + 1
+            # <- если необходимо искать униграммы, то происходит перебор всего
+            # текста по словам. если слово есть в словаре, то увеличить
+            # счетчик этого слова в нём. если нет, то добавить и сделать
+            # счетчик = 1
+                 
+        else: 
+            if (self._ngram == 'bigram'):
+                self._parseNgram(text, self._last, 2, self._ignoreWordOrder)
+            elif (self._ngram == 'trigram'):
+                self._parseNgram(text, self._last, 3, self._ignoreWordOrder)
+            else:
+                sys.exit("Error: Unknown ngram parameter: " + self._ngram)
+            # <- если необходимо искать би- или три-граммы, то отправить
+            # всю работу на выполнение в метод парсинга н-грамм
+                        
         if len(self._last) < 1:
             sys.exit("Error: Local dictionary size is zero")
-            
+
         self._addToGlobal(self._last)
         # метод получает текст, получает из него 
         # локальный словарь, затем дополняет им глобальный 
         # словарь
+    
+    def _parseNgram(self, text:str, localDict, n:int, ignoreWordOrder: bool):
+        """
+        private _parseNgram(self, text:str, localDict, 
+        n:int, ignoreWordOrder: bool):
+        
+        Метод выполняет создание локального словаря n-грамм, в зависимости
+        от параметров
+        """
+        sentenceList = text.split(" . ")
+        for sentence in sentenceList:
+            self._wordsList = sentence.split(" ")
+            for ngram in ngrams(self._wordsList, n):
+                if ignoreWordOrder:
+                    ngramFinal = ' '.join(sorted(ngram))
+                else:
+                    ngramFinal = ' '.join(ngram)
+                if localDict.get(ngramFinal) == None:
+                    localDict[ngramFinal] = 1
+                else:
+                    localDict[ngramFinal] = localDict[ngramFinal] + 1
+            # <- текст разбивается на предложения. затем, они на список слов
+            # выполняется составление н-грамм предложения. 
+            # если для алгоритма не важен порядок слов при сравнении н-грамм
+            # то происходит сортировка токена (из 2х или 3х слов), 
+            # далее, далее идёт сравнение со словарем локальным. елси же 
+            # порядок слов важен, то сортировки не происходит
+        return localDict
+        
     
     def getGlobalDictionary(self):
         # метод возвращает глобальный словарь
@@ -194,10 +252,10 @@ class Dictionary:
 
     
 if __name__ == '__main__':
-    d = Dictionary()
-    t1 = "text test lol kek cheburek"
-    t2 = "fast text lol chto prikol"
-    t3 = "text text fast fast text lol azaza slova slovo none"
+    d = Dictionary("tf", "unigram", False)
+    t1 = "text test lol kek cheburek . prikol . prikol . lol kek . kek lol"
+    t2 = "fast text lol chto prikol . fast fast text slova lol . a"
+    t3 = "text text fast fast text lol azaza slova slovo none . none prikol"
     d.addData(t1)
     print("\nFullDict")
     print(d.getGlobalDictionary())
@@ -213,3 +271,4 @@ if __name__ == '__main__':
     print(d.getGlobalDictionary())
     print("\nLocDict")
     print(d.getLastDictionary())
+    ddd = d.getGlobalDictionary()

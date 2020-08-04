@@ -16,7 +16,7 @@ p = Param() #инициализация класса с параметрами �
 p.printParam() #вывод списка параметров
 
 print('Инициализация...')
-pathToDB = p.getPathToDBForReport()
+pathToDB = p.database.getPathForReport()
 db = DbInteraction() #иниц. класса для работы с БД
 db.initNNAnalysis(pathToDB) # отправка в него пути к БД
 db.addInfo() # добавить новую строку
@@ -42,10 +42,10 @@ ds = tf.data.Dataset.from_generator(
 
 #%%
 print("Фомирование данных для обучения...")
-if p.shuffleData():
+if p.neuralNetwork.getShuffleStatus():
     ds = ds.shuffle(buffer_size=corpusSize,
                     reshuffle_each_iteration=False)
-trainSize = int(corpusSize*p.getTrainPercentage()/100)
+trainSize = int(corpusSize*p.neuralNetwork.getTrainPercentage()/100)
 ds_train = ds.take(trainSize)
 ds_val = ds.skip(trainSize)
 ds = None
@@ -69,7 +69,7 @@ model.compile(optimizer=tf.keras.optimizers.Adam(0.001),
 print("Начало процесса обучения сети...")
 startTime = time.time() 
 history = model.fit(ds_train,
-                    epochs=p.readEpochs(),
+                    epochs=p.neuralNetwork.getEpochs(),
                     validation_data=ds_val)
 endTime = time.time() 
 #%%
@@ -110,7 +110,7 @@ learningTime = json.dumps(endTime-startTime)
 compilationTime2 = "{0}-{1}-{2} {3}-{4}".format(t.tm_year, t.tm_mon, 
                                                t.tm_mday, t.tm_hour, 
                                                t.tm_min)
-nameOfSavedModel = "model_"+p.readName()+"_"+compilationTime2+".h5"
+nameOfSavedModel = "model_"+p.getName()+"_"+compilationTime2+".h5"
 neuralNetworkStruct = json.dumps(nameOfSavedModel)
 neuralNetworkStruct = neuralNetworkStruct.replace('"', '') 
 model.save("savedModels/"+nameOfSavedModel)
