@@ -52,7 +52,7 @@ db.updateInfo('corpus_ID', corpusID, 1)
 db.updateInfo('compilationTime', compilationTime, 1)
 db.updateInfo('source', p.source.getCorpusName(), 1)
 
-   
+
 
 
 analyzer = CorpusAnalyzer() # аналайзер дополняет БД оставшимися данными (на

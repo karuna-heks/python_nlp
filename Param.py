@@ -1,5 +1,5 @@
 """
-v1.1.0
+v1.1.1
 Param - класс, необходимый для работы с файлом параметров в формате json
 
 #!!! Переработать класс под новый .json формат:
@@ -98,7 +98,7 @@ class Param():
         """
         Возвращает заданное имя файла отчета
         """
-        return json.loads(self.json_param).get('name')
+        return json.loads(self.json_param).get('fileName')
     
     def readParam(self):
         return self.json_param
@@ -442,6 +442,7 @@ if __name__ == '__main__':
     print(p2.featureExtraction.getNgrammType())
     print(p2.featureExtraction.getMetricType())
     print(p2.featureExtraction.getMaxFeatures())
+    print(p2.featureExtraction.getIgnoreWordOrderStatus())
     
     print(p2.neuralNetwork.getEpochs())
     print(p2.neuralNetwork.getShuffleStatus())
