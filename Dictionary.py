@@ -1,5 +1,5 @@
 """
-v0.7.0
+v0.7.1
 Dictionary - файл, содержащий класс для работы со словарем/словарями 
 корпуса текстов
 
@@ -22,6 +22,7 @@ import sys
 import numpy as np
 import nltk
 from nltk import ngrams
+import re
 
 class Dictionary:
     
@@ -71,10 +72,29 @@ class Dictionary:
                 self._parseNgram(text, self._last, 2, self._ignoreWordOrder)
             elif (self._ngram == 'trigram'):
                 self._parseNgram(text, self._last, 3, self._ignoreWordOrder)
+                self._parseNgram(text, self._last, 2, self._ignoreWordOrder)
             else:
                 sys.exit("Error: Unknown ngram parameter: " + self._ngram)
             # <- если необходимо искать би- или три-граммы, то отправить
             # всю работу на выполнение в метод парсинга н-грамм
+                
+            text = re.sub(r"[a-zа-яё]{0,0}[\s]+[$a-zа-яё]{0,0}", 
+                          " ", text)
+            text = re.sub(r"[a-zа-яё]{0,0}[\s.]*[.]+[\s.]*[a-zа-яё]{0,0}", 
+                              " . ", text)
+            sentenceList = text.split(" . ")
+            for sentence in sentenceList:
+                self._wordsList = sentence.split(" ")
+                for word in self._wordsList:
+                    if word == ' ' or word == '':
+                        continue
+                    if self._last.get(word) == None:
+                        self._last[word] = 1
+                    else:
+                        self._last[word] = self._last[word] + 1
+            # <- после выявления три- и би-грамм, происходит поиск униграмм
+            #!!! продумать более простую конструкцию для этих действий всех
+
                         
         if len(self._last) < 1:
             sys.exit("Error: Local dictionary size is zero")
@@ -84,7 +104,7 @@ class Dictionary:
         # локальный словарь, затем дополняет им глобальный 
         # словарь
     
-    def _parseNgram(self, text:str, localDict, n:int, ignoreWordOrder: bool):
+    def _parseNgram(self, fullText:str, localDict, n:int, ignoreWordOrder: bool):
         """
         private _parseNgram(self, text:str, localDict, 
         n:int, ignoreWordOrder: bool):
@@ -92,6 +112,10 @@ class Dictionary:
         Метод выполняет создание локального словаря n-грамм, в зависимости
         от параметров
         """
+        text = re.sub(r"[a-zа-яё]{0,0}[\s]+[$a-zа-яё]{0,0}", 
+                          " ", fullText)
+        text = re.sub(r"[a-zа-яё]{0,0}[\s.]*[.]+[\s.]*[a-zа-яё]{0,0}", 
+                          " . ", text)
         sentenceList = text.split(" . ")
         for sentence in sentenceList:
             self._wordsList = sentence.split(" ")
@@ -111,7 +135,7 @@ class Dictionary:
             # далее, далее идёт сравнение со словарем локальным. елси же 
             # порядок слов важен, то сортировки не происходит
         return localDict
-        
+
     
     def getGlobalDictionary(self):
         # метод возвращает глобальный словарь
@@ -252,10 +276,10 @@ class Dictionary:
 
     
 if __name__ == '__main__':
-    d = Dictionary("tf", "unigram", False)
-    t1 = "text test lol kek cheburek . prikol . prikol . lol kek . kek lol"
-    t2 = "fast text lol chto prikol . fast fast text slova lol . a"
-    t3 = "text text fast fast text lol azaza slova slovo none . none prikol"
+    d = Dictionary("tf", "trigram", False)
+    t1 = ". text test lol kek cheburek . prikol . prikol . lol kek . kek lol"
+    t2 = "fast text  lol chto prikol . fast fast text slova lol . a"
+    t3 = "text text fast fast text lol . azaza slova slovo none . none prikol ."
     d.addData(t1)
     print("\nFullDict")
     print(d.getGlobalDictionary())

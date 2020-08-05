@@ -1,5 +1,5 @@
 """
-v0.3.16
+v0.3.19
 Vectorizer - файл, содержащий класс для формирования векторов 
 текстов на основе набора токенов и/или локальных и глобального словарей 
 
@@ -64,16 +64,20 @@ class Vectorizer:
                 # <- если ключ не найден, то добавляет 0       
         
         npArray = np.array(tempArray)
-        npArray = npArray/la.norm(npArray)
+        norm = la.norm(npArray)
+        if (norm == 0):
+            print("\nWarning: Null vector text")
+            return list(npArray/1.)
+            sys.exit("Error: Text vector sum is zero")
+        npArray = npArray/norm
         # <- переводим массив в numpy массив и нормируем его
         
         if (self._metric == "tfidf"):
             npArray = npArray*self._idfArray
-            npArray = npArray/la.norm(npArray)
+            norm = la.norm(npArray)
+            npArray = npArray/norm
         # <- если выбрана метрика tfidf, то домножаем tf на массив с
             #idf параметрами каждого слова и снова нормируем его
-        if npArray.sum() <= 0:
-            sys.exit("Error: Text vector sum is zero")
         
         return list(npArray)
     # <- метод получает словарь, содержащий все слова определённого текста

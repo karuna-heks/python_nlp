@@ -96,7 +96,8 @@ analyzer = None
 print("Выполняется парсинг текстов...")
 parser = CorpusParser(language = p.parser.getLanguage(), 
                       stemType = p.parser.getStemType(),
-                      stopWordsType = p.parser.getStopWordsType())
+                      stopWordsType = p.parser.getStopWordsType(),
+                      ngram = p.featureExtraction.getNgrammType())
 tempText = ''
 pb = ProgressBar(maxValue=db.getTextsSize(),
                  suffix='обработано')
@@ -109,12 +110,14 @@ for i in range(db.getTextsSize()):
 # забираются сырые тексты, отправляются на очистку
 # возвращаются тексты после фильтрации и отправляются в БД обратно
     
-op = None
-parser = None
+# op = None
+# parser = None
 # <- Очистка ненужных объектов (OpenTexts и CorpusParser)
 
 print("Сохранение локальных словарей в базе данных...")
-d = Dictionary(p.featureExtraction.getMetricType())
+d = Dictionary(p.featureExtraction.getMetricType(),
+               p.featureExtraction.getNgrammType(),
+               p.featureExtraction.getIgnoreWordOrderStatus())
 pb.new(maxValue=db.getTextsSize(), suffix='cохранено')
 for i in range(db.getTextsSize()):
     d.addData(db.getTextsData('formattedText', i+1)[0][0])
@@ -200,8 +203,8 @@ if p.database.getSaveDictionaryStatus() == True:
         pb.inc()
         # <- добавление глобального словаря в бд, целиком
         #!!! нужно пофиксить. работает слишком медленно
-d = None
-v = None
+# d = None
+# v = None
 # <- Очистка ненужных объектов (Dictionary и Vectorizer)
 
 #%%
