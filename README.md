@@ -17,6 +17,9 @@ nltk.download('wordnet')
 nltk.download('stopwords')
 nltk.download('brown')
 wget https://github.com/yutkin/Lenta.Ru-News-Dataset/releases/download/v1.0/lenta-ru-news.csv.gz
+$ pip install navec
+wget https://storage.yandexcloud.net/natasha-navec/packs/navec_hudlit_v1_12B_500K_300d_100q.tar
+wget https://storage.yandexcloud.net/natasha-navec/packs/navec_news_v1_1B_250K_300d_100q.tar
 ```
 
 **Настроить параметры модели**

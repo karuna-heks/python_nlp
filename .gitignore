@@ -10,3 +10,5 @@ lenta-ru-news.csv.gz
 /.spyproject/*
 /savedModels/*
 */.ipynb_checkpoints*
+navec_hudlit*
+navec_news*
