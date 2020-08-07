@@ -22,6 +22,7 @@ Vectorizer - файл, содержащий класс для формирова
 import sys
 import numpy as np
 from numpy import linalg as la
+from navec import Navec
 
 
 class Vectorizer:
@@ -35,6 +36,8 @@ class Vectorizer:
     
     def __init__(self, metricType:str="tf"):
         self._metric = metricType
+        if self._metric == 'emb':
+            self._embModel = Navec.load('navec_news_v1_1B_250K_300d_100q.tar')
         
     
     def addGlobDict(self, globalDictionary):
@@ -86,14 +89,73 @@ class Vectorizer:
     #!!! - необходимо строить вектор на основе метрики tf и/или  tf-idf (дополнить)
     
     
-    
-    
     def numToOutputVec(self, num, size):
         tempVec = []
         tempVec = [0]*size
         tempVec[num] = 1
         return tempVec
         
+    
+    
+    
+    
+    
+    
+    
+    def _getWordVec(self, word:str):
+        """
+        Метод получает embedding model и слово. возвращает вектор этого
+        слова
+        """
+        if word in self._embModel:
+            return self._embModel[word]
+        else:
+            return self._embModel['<unk>']
+
+    def _textToVectors(self, tokenizedText):
+        """
+        Метод получает embedding model и текст, в виде списка слов.
+        Возвращает набор векторов текста
+        """
+        vectors = [self._getWordVec(word) for word in tokenizedText]
+        return np.array(vectors)
+    
+    def _trimAndPadVectors(self, textVectors, embDimension:int, seqLen:int):
+        """
+        метод преобразует входящую матрицу (набор векторов) во входной вектор, 
+        согласно необходимому формату (удаляет лишние строки 
+        последовательности и добавляет недостающие)
+        """
+        output = np.zeros((seqLen, embDimension))
+        trimmedVectors = textVectors[:seqLen]
+        endOfPaddingIndex = seqLen - trimmedVectors.shape[0]
+        output[endOfPaddingIndex:] = trimmedVectors
+        return output.reshape((seqLen, embDimension))
+    
+    def embPreprocess(self, seqLen:int, tokenizedText):
+        """
+        метод преобразует список слов в вектор нужного формата
+        """
+        textVectors = self._textToVectors(tokenizedText)
+        output = self._trimAndPadVectors(textVectors, self._embModel.pq.dim, seqLen)
+        return output
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     

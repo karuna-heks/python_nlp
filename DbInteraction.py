@@ -28,6 +28,7 @@ DbInteraction - файл, содержащий методы и классы дл
 import sqlite3
 from sqlite3 import Error
 from DbQuery import DbQuery
+import numpy as np
 import json
 
 
@@ -640,22 +641,32 @@ class DbInteraction:
         """
         #!!! - test method
         """
-        def __init__(self, size, path, strName1, strName2):
+        def __init__(self, size, path, strName1, strName2, featureExtract):
             self.q = DbQuery()
             self.size = size
             self.db2 = DbInteraction()
             self.db2.initNNAnalysis(path)
             self.s1 = strName1
             self.s2 = strName2
+            self.fe = featureExtract
             
         def __call__(self):
-            for i in range(self.size):
-                if (self.s2 == None):
-                    yield self.db2.readQuery(self.db2.getConnectionData(),
-                                       self.q.getDataTexts(i+1, self.s1))[0][0] #!!! доп
-                else:
-                    yield (json.loads(self.db2.getTextsData(self.s1, i+1)[0][0]),
-                       json.loads(self.db2.getTextsData(self.s2, i+1)[0][0]))
+            if self.fe in ['tf', 'tfidf']:
+                for i in range(self.size):
+                    if (self.s2 == None):
+                        yield self.db2.readQuery(self.db2.getConnectionData(),
+                                           self.q.getDataTexts(i+1, self.s1))[0][0] #!!! доп
+                    else:
+                        yield (json.loads(self.db2.getTextsData(self.s1, i+1)[0][0]),
+                           json.loads(self.db2.getTextsData(self.s2, i+1)[0][0]))
+            elif self.fe in ['emb']:
+                for i in range(self.size):
+                    if (self.s2 == None):
+                        yield np.array(self.db2.readQuery(self.db2.getConnectionData(),
+                                                 self.q.getDataTexts(i+1, self.s1))[0][0])
+                    else:
+                        yield (np.array(json.loads(self.db2.getTextsData(self.s1, i+1)[0][0])),
+                               np.array(json.loads(self.db2.getTextsData(self.s2, i+1)[0][0])))
     #!!! test!!!
     # def iterTexts(self, strName1=None, strName2=None, tableSize=0, c=None):
         # return generator
