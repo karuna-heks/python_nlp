@@ -85,6 +85,9 @@ corpusSize = db.getTextsSize()
 db.updateInfo('numOfTopics', outputSize, actualNumberOfData)
 db.updateInfo('numOfTexts', corpusSize, actualNumberOfData)
 db.updateInfo('dictionarySize', inputSize, actualNumberOfData)
+db.updateInfo('numOfTopics', outputSize, 1)
+db.updateInfo('numOfTexts', corpusSize, 1)
+db.updateInfo('dictionarySize', inputSize, 1)
 # <- обновление общей информации в БД (для отчетности)
 
 
@@ -127,12 +130,6 @@ if p.database.getSaveDictionaryStatus() == True:
 # d = None
 # v = None
 # <- Очистка ненужных объектов (Dictionary и Vectorizer)
-
-
-
-
-
-
 
 
 

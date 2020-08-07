@@ -16,13 +16,17 @@
     "ngrammType": "unigramma",
     "ignoreWordOrder": true,
     "metric": "tfidf",
-    "maxFeatures": 1000
+    "maxFeatures": 1000,
+    
+    "maxSequence": 100
   },
   
   "neuralNetwork": {
     "epochs": 5,
     "shuffleData": false,
     "trainPercentage": 80,
+    
+    "neuralNetworkType": "FFNN",
     "inputLayer": "relu",
     "hiddenLayers": [
       {"relu": 100},

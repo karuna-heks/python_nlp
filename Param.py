@@ -1,5 +1,5 @@
 """
-v1.1.1
+v1.2.5
 Param - класс, необходимый для работы с файлом параметров в формате json
 
 #!!! Переработать класс под новый .json формат:
@@ -11,72 +11,6 @@ Param - класс, необходимый для работы с файлом �
 
 import json
 import sys
-
-class Param2:
-    
-    def __init__(self, path=None):
-        if path==None:
-            f = open('param.json', 'r')
-        else:
-            f = open(path, 'r')
-        self.json_param = f.read()
-        f.close()
-    
-    def readString(self):
-        return self.json_param
-    
-    def printParam(self):
-        print("Полный список выбранных параметров программы:")
-        print(self.json_param)
-
-    def readName(self):
-        return json.loads(self.json_param).get('name')
-
-    def readLanguage(self):
-        return json.loads(self.json_param).get('language')
-    
-    def readSource(self):
-        return json.loads(self.json_param).get('source')
-    
-    def readStemType(self):
-        return json.loads(self.json_param).get('stemType')
-    
-    def readStopWordsType(self):
-        return json.loads(self.json_param).get('stopWordsType')
-    
-
-    
-    def readDBCorpusPath(self):
-        return json.loads(self.json_param).get('dbCorpusPath')
-    
-    def readDocCorpusPath(self):
-        return json.loads(self.json_param).get('docCorpusPath')
-    
-    def saveDictionary(self):
-        return json.loads(self.json_param).get('saveDictionary')
-        
-    def getPathToDBForReport(self):
-        return json.loads(self.json_param).get('pathToDBForReport')
-    
-    
-    
-    def readMetric(self):
-        return json.loads(self.json_param).get('metric')
-    
-    def readMaxFeatures(self):
-        return json.loads(self.json_param).get('maxFeatures')
-    
-    
-    
-    #% Neural Network Parameters
-    def readEpochs(self):
-        return json.loads(self.json_param).get('epochs')
-    
-    def getTrainPercentage(self):
-        return json.loads(self.json_param).get('trainPercentage')
-    
-    def shuffleData(self):
-        return json.loads(self.json_param).get('shuffleData')
     
 
 class Param():
@@ -305,7 +239,10 @@ class FeatureExtractionParam:
         Доступны варианты: "tf" и "tfidf" 
         tf -- вектор строится на основе частоты появления слова в тексте. 
         tfidf -- вектор строится на основе величины TF-IDF.
-        (word2Vec)
+        embedding -- построение векторов слов на основе  
+        векторного представления. (каждое слово -- вектор с фиксированным размером,
+        текст -- матрица (набор векторов)). при выборе данной метрики тип 
+        нейронной сети может быть только CNN, RNN или BiLSTM
 
         Returns:
         str
@@ -323,9 +260,10 @@ class FeatureExtractionParam:
             return "tfidf"
         
         elif (
-                (result == "word2vec") 
+                (result == "embedding") or (result == "emb") or
+                (result == "wordembedding") or (result == "wordemb")               
             ):
-            return "word2vec"
+            return "emb"
         
         else:
             sys.exit("Error: unknown MetricType parameter: "+str(result))
@@ -360,6 +298,31 @@ class FeatureExtractionParam:
             return "none"
         else:
             sys.exit("Error: unknown MaxFeatures parameter: "+str(result))
+            
+    
+    def getMaxSequence(self):
+        """
+        Максимальный доступный размер последовательности данных при 
+        использовании метода векторного представления слов. 
+        При выборе параметров "embedding" в метрике (MetricType) и параметра 
+        "CNN" или "BiLSTM" в виде нейронной сети (neuralNetworkType) каждый 
+        текст должен представлять собой матрицу, размера 
+        (размерностьВектора * maxSequence). maxSequence характеризует 
+        количество слов, которые попадут в выходную матрицу. Если слов 
+        окажется больше, чем размер maxSequence, то они будут отсечены
+        алгоритмом, если их окажется меньше, то оставшаяся часть матрицы 
+        заполнится нулями. Чем меньше будет параметр maxSequence, тем быстрее
+        будет производительность сети и меньше памяти будет занимать вектор, 
+        но тем меньше текста будет проанализированно
+
+        Returns:
+        str
+        """
+        result = json.loads(self.obj.json_param).get('featureExtraction')["maxSequence"]
+        if (isinstance(result, int)):
+            return result
+        else:
+            sys.exit("Error: unknown MaxSequence parameter: "+str(result))
         
         
 class NeuralNetworkParam:
@@ -404,6 +367,43 @@ class NeuralNetworkParam:
         result = json.loads(self.obj.json_param).get('neuralNetwork')["trainPercentage"]
         return result
     
+    def getNeuralNetworkType(self):
+        """
+        Выбор архитектуры нейронной сети. 
+        Доступны варианты: "FFNN", "CNN" и "BiLSTM" 
+        FFNN -- НС прямого распространения. 
+        CNN -- сверточная НС (только для embedding)
+        BiLSTM -- двунаправленная рекуррентная НС с LSTM слоем (только для 
+        embedding)
+
+        Returns:
+        str
+        """
+        result = json.loads(self.obj.json_param).get('neuralNetwork')["neuralNetworkType"]
+        result = result.lower()
+        if (
+                (result == "ff") or (result == "ffnn") or
+                (result == "ffn") or (result == "feedforward") or
+                (result == "feed forward") or (result == "feed-forward") or
+                (result == "feedforwardnn")
+            ):
+            return "ffnn"
+        
+        elif (
+                (result == "cnn") or (result == "convolutional") or
+                (result == "convolutionalnn")
+            ):
+            return "cnn"
+        
+        elif (
+                (result == "bilstm") or (result == "bi-lstm") or
+                (result == "bilstmnn") or (result == "bi-lstmnn")             
+            ):
+            return "bilstmnn"
+        
+        else:
+            sys.exit("Error: unknown MetricType parameter: "+str(result))
+    
 class Database:
     """
     Класс NeuralNetworkParam содержит методы для извлечения 
@@ -423,6 +423,85 @@ class Database:
         return json.loads(self.obj.json_param).get('database')["saveDictionary"]
         
         
+
+    
+    
+    
+    
+class Param2:
+    
+    def __init__(self, path=None):
+        if path==None:
+            f = open('param.json', 'r')
+        else:
+            f = open(path, 'r')
+        self.json_param = f.read()
+        f.close()
+    
+    def readString(self):
+        return self.json_param
+    
+    def printParam(self):
+        print("Полный список выбранных параметров программы:")
+        print(self.json_param)
+
+    def readName(self):
+        return json.loads(self.json_param).get('name')
+
+    def readLanguage(self):
+        return json.loads(self.json_param).get('language')
+    
+    def readSource(self):
+        return json.loads(self.json_param).get('source')
+    
+    def readStemType(self):
+        return json.loads(self.json_param).get('stemType')
+    
+    def readStopWordsType(self):
+        return json.loads(self.json_param).get('stopWordsType')
+    
+
+    
+    def readDBCorpusPath(self):
+        return json.loads(self.json_param).get('dbCorpusPath')
+    
+    def readDocCorpusPath(self):
+        return json.loads(self.json_param).get('docCorpusPath')
+    
+    def saveDictionary(self):
+        return json.loads(self.json_param).get('saveDictionary')
+        
+    def getPathToDBForReport(self):
+        return json.loads(self.json_param).get('pathToDBForReport')
+    
+    
+    
+    def readMetric(self):
+        return json.loads(self.json_param).get('metric')
+    
+    def readMaxFeatures(self):
+        return json.loads(self.json_param).get('maxFeatures')
+    
+    
+    
+    #% Neural Network Parameters
+    def readEpochs(self):
+        return json.loads(self.json_param).get('epochs')
+    
+    def getTrainPercentage(self):
+        return json.loads(self.json_param).get('trainPercentage')
+    
+    def shuffleData(self):
+        return json.loads(self.json_param).get('shuffleData')
+    
+    
+    
+    
+    
+    
+    
+    
+    
 if __name__ == '__main__':
     p = Param2()
     p.printParam()
@@ -451,6 +530,3 @@ if __name__ == '__main__':
     print(p2.database.getDbCorpusPath())
     print(p2.database.getPathForReport())
     print(p2.database.getSaveDictionaryStatus())
-    
-    
-    

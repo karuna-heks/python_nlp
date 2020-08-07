@@ -127,16 +127,17 @@ for i in range(db.getTextsSize()):
     db.updateTexts('localDictionary', tempStr, i+1)
     pb.inc()
     # <- добавление в БД локальных словарей в виде json строки
+print(1)
 d.idfGlobalCalc()
-
+print(2)
 v = Vectorizer(p.featureExtraction.getMetricType())
 v.addGlobDict(d.getGlobalDictionary())
-
+print(3)
 if isinstance(p.featureExtraction.getMaxFeatures(), int):
     d.reduceFeatures(p.featureExtraction.getMaxFeatures())
     if (p.featureExtraction.getMetricType() == 'tfidf'):
         v.addIdfDict(d.getTfidfDict())
-
+print(4)
 if p.database.getSaveDictionaryStatus() == True:
     print("Добавление глобального словаря в базу данных...")
     pb.new(maxValue=d.getGlobalSize(),
