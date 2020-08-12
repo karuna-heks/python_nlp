@@ -659,14 +659,16 @@ class DbInteraction:
                     else:
                         yield (json.loads(self.db2.getTextsData(self.s1, i+1)[0][0]),
                            json.loads(self.db2.getTextsData(self.s2, i+1)[0][0]))
-            elif self.fe in ['emb']:
+            elif self.fe in ['emb', 'embm']:
                 for i in range(self.size):
                     if (self.s2 == None):
                         yield np.array(self.db2.readQuery(self.db2.getConnectionData(),
                                                  self.q.getDataTexts(i+1, self.s1))[0][0])
                     else:
-                        yield (np.array(json.loads(self.db2.getTextsData(self.s1, i+1)[0][0])),
-                               np.array(json.loads(self.db2.getTextsData(self.s2, i+1)[0][0])))
+                        par1 = json.loads(self.db2.getTextsData(self.s1, i+1)[0][0])
+                        par2 = json.loads(self.db2.getTextsData(self.s2, i+1)[0][0])
+                        yield (np.array(par1),
+                               np.array(par2))
     #!!! test!!!
     # def iterTexts(self, strName1=None, strName2=None, tableSize=0, c=None):
         # return generator

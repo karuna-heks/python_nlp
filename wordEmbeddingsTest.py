@@ -147,7 +147,7 @@ def trimAndPadVectors(textVectors, embDimension:int, seqLen:int):
     trimmedVectors = textVectors[:seqLen]
     endOfPaddingIndex = seqLen - trimmedVectors.shape[0]
     output[endOfPaddingIndex:] = trimmedVectors
-    return output.reshape((1, seqLen, embDimension))
+    return output.reshape((1, seqLen, embDimension, 1))
 
 def embPreprocess(embModel, seqLen:int, tokenizedText):
     textVectors = textToVectors(embModel, tokenizedText)
@@ -166,14 +166,22 @@ batch = 1
 
 #%%
 model = tf.keras.Sequential()
-model.add(layers.Bidirectional(layers.LSTM(300), 
-                                input_shape=(seq,dim)))
-# model.add(layers.Bidirectional(layers.LSTM(10)))
-model.add(layers.Dense(300, 'relu'))
+model.add(layers.Conv2D(64, (3,3), input_shape=(seq, dim, 1)))
+model.add(layers.Activation("relu"))
+model.add(layers.MaxPooling2D(pool_size=(2,2)))
+
+model.add(layers.Conv2D(64, (3,3)))
+model.add(layers.Activation("relu"))
+model.add(layers.MaxPooling2D(pool_size=(2,2)))
+
+model.add(layers.Flatten())
+model.add(layers.Dense(64))
+
 model.add(layers.Dense(2, 'softmax'))
 model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop')
 model.summary()
+
 
 #%%
 for epoch in range(14):

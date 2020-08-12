@@ -1,5 +1,5 @@
 """
-v1.2.5
+v1.2.6
 Param - класс, необходимый для работы с файлом параметров в формате json
 
 #!!! Переработать класс под новый .json формат:
@@ -241,8 +241,13 @@ class FeatureExtractionParam:
         tfidf -- вектор строится на основе величины TF-IDF.
         embedding -- построение векторов слов на основе  
         векторного представления. (каждое слово -- вектор с фиксированным размером,
+        текст -- вектор, полученный при объединении векторов. 
+        при выборе данной метрики тип нейронной сети может быть только 
+        RNN или BiLSTM
+        embeddingMatrix -- построение матрицы слов на основе  
+        векторного представления. (каждое слово -- вектор с фиксированным размером,
         текст -- матрица (набор векторов)). при выборе данной метрики тип 
-        нейронной сети может быть только CNN, RNN или BiLSTM
+        нейронной сети может быть только CNN
 
         Returns:
         str
@@ -264,6 +269,14 @@ class FeatureExtractionParam:
                 (result == "wordembedding") or (result == "wordemb")               
             ):
             return "emb"
+        
+        elif (
+                (result == "embeddingmatrix") or (result == "embmatrix") or
+                (result == "wordembeddingm") or (result == "wordembm") or   
+                (result == "embeddingmat") or (result == "embm") or
+                (result == "wordembeddingmat") or (result == "wordembmat") 
+            ):
+            return "embm"
         
         else:
             sys.exit("Error: unknown MetricType parameter: "+str(result))

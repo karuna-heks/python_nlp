@@ -1,5 +1,5 @@
 """
-v0.3.19
+v0.3.20
 Vectorizer - файл, содержащий класс для формирования векторов 
 текстов на основе набора токенов и/или локальных и глобального словарей 
 
@@ -36,7 +36,7 @@ class Vectorizer:
     
     def __init__(self, metricType:str="tf"):
         self._metric = metricType
-        if self._metric == 'emb':
+        if self._metric == 'emb' or self._metric == 'embm':
             self._embModel = Navec.load('navec_news_v1_1B_250K_300d_100q.tar')
         
     
@@ -132,12 +132,31 @@ class Vectorizer:
         output[endOfPaddingIndex:] = trimmedVectors
         return output.reshape((seqLen, embDimension))
     
+    def _trimAndPadVectorsMatrix(self, textVectors, embDimension:int, seqLen:int):
+        """
+        метод преобразует входящую матрицу (набор векторов) в входную матрицу, 
+        согласно необходимому формату (удаляет лишние строки 
+        последовательности и добавляет недостающие)
+        """
+        output = np.zeros((seqLen, embDimension))
+        trimmedVectors = textVectors[:seqLen]
+        endOfPaddingIndex = seqLen - trimmedVectors.shape[0]
+        output[endOfPaddingIndex:] = trimmedVectors
+        return output.reshape((seqLen, embDimension, 1))
+    
     def embPreprocess(self, seqLen:int, tokenizedText):
         """
         метод преобразует список слов в вектор нужного формата
         """
         textVectors = self._textToVectors(tokenizedText)
-        output = self._trimAndPadVectors(textVectors, self._embModel.pq.dim, seqLen)
+        if self._metric == 'emb':
+            output = self._trimAndPadVectors(textVectors, 
+                                             self._embModel.pq.dim, 
+                                             seqLen)
+        elif self._metric == 'embm':
+            output = self._trimAndPadVectorsMatrix(textVectors, 
+                                             self._embModel.pq.dim, 
+                                             seqLen)
         return output
     
     
