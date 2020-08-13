@@ -494,7 +494,7 @@ class DbInteraction:
         try:
             connection = sqlite3.connect(path, check_same_thread=False)
         except Error as e:
-            print(f"The error '{e}' occured")
+            print(f"The error '{e}' occurred")
         return connection
         
         
@@ -517,7 +517,7 @@ class DbInteraction:
             cursor.execute(q)
             connection.commit()
         except Error as e:
-            print(f"The error '{e}' occured")
+            print(f"The error '{e}' occurred")
     
     
     def _readQuery(self, connection, q:str):
@@ -542,7 +542,7 @@ class DbInteraction:
             result = cursor.fetchall()
             return result
         except Error as e:
-            print(f"The error '{e}' occured")
+            print(f"The error '{e}' occurred")
     
     
     def _newDataPath(self, oldPath:str, corpusID:str):
