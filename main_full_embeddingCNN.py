@@ -175,21 +175,96 @@ ds_val = ds_val.batch(30)
 
 #%%
 print("Создание нейросетевой модели...")
-model = tf.keras.Sequential()
-model.add(layers.Conv2D(64, 
-                        (3,3), 
-                        input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)))
-model.add(layers.Activation("relu"))
-model.add(layers.MaxPooling2D(pool_size=(2,2)))
+# model = tf.keras.Sequential()
+# model.add(layers.Conv2D(128, 
+#                         (3,300), 
+#                         input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)))
 
-model.add(layers.Conv2D(64, (3,3)))
-model.add(layers.Activation("relu"))
-model.add(layers.MaxPooling2D(pool_size=(2,2)))
+# l1 = layers.Conv2D(32,
+#                     (3,300),
+#                     input_shape=(p.featureExtraction.getMaxSequence(), 300, 1))
+# l2 = layers.Conv2D(32,
+#                     (4,300),
+#                     input_shape=(p.featureExtraction.getMaxSequence(), 300, 1))
+# l3 = layers.Conv2D(32,
+#                     (5,300),
+#                     input_shape=(p.featureExtraction.getMaxSequence(), 300, 1))
+# l = layers.Concatenate()([l1, l2, l3])
+# model.add(l)
 
-model.add(layers.Flatten())
-model.add(layers.Dense(64))
 
-model.add(layers.Dense(outputSize, 'softmax'))
+# model.add(layers.Activation("relu"))
+# # model.add(layers.MaxPooling2D(pool_size=(2,1)))
+
+# # model.add(layers.Conv2D(32, (5,5)))
+# # model.add(layers.Activation("relu"))
+# # model.add(layers.MaxPooling2D(pool_size=(2,2)))
+
+# model.add(layers.Flatten())
+# model.add(layers.Dense(128, activation='relu'))
+# model.add(layers.Dense(128, activation='relu'))
+
+# model.add(layers.Dense(outputSize, 'softmax'))
+
+# inputFlow = layers.Input(shape=(p.featureExtraction.getMaxSequence(), 300, 1))
+# x = layers.Conv2D(64,
+#                   (3,300),
+#                   input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
+#                   )(inputFlow)
+# x = layers.Activation("relu")(x)
+# x = layers.Flatten()(x)
+# x = layers.Dense(64, activation='relu')(x)
+# x = layers.Dense(outputSize, 'softmax')(x)
+# model = tf.keras.Model(inputs=inputFlow, outputs=x)
+
+inputFlow = layers.Input(shape=(p.featureExtraction.getMaxSequence(), 300, 1))
+l1 = layers.Conv2D(
+                    8,
+                    (1,300),
+                    input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
+                    )(inputFlow)
+l1 = layers.Activation('relu')(l1)
+l1 = layers.Flatten()(l1)
+
+l2 = layers.Conv2D(
+                    8,
+                    (2,300),
+                    input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
+                    )(inputFlow)
+l2 = layers.Activation('relu')(l2)
+l2 = layers.Flatten()(l2)
+
+l3 = layers.Conv2D(
+                    8,
+                    (3,300),
+                    input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
+                    )(inputFlow)
+l3 = layers.Activation('relu')(l3)
+l3 = layers.Flatten()(l3)
+
+l4 = layers.Conv2D(
+                    8,
+                    (4,300),
+                    input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
+                    )(inputFlow)
+l4 = layers.Activation('relu')(l4)
+l4 = layers.Flatten()(l4)
+
+l5 = layers.Conv2D(
+                    8,
+                    (5,300),
+                    input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
+                    )(inputFlow)
+l5 = layers.Activation('relu')(l5)
+l5 = layers.Flatten()(l5)
+
+x = layers.concatenate([l1, l2, l3, l4, l5])
+x = layers.Dense(96, activation='relu')(x)
+x = layers.Dense(outputSize, 'softmax')(x)
+
+model = tf.keras.Model(inputs=inputFlow, outputs=x)
+model.summary()
+
 model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop',
               metrics=[tf.keras.metrics.CategoricalAccuracy()])

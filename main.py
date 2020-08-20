@@ -213,7 +213,8 @@ if p.database.getSaveDictionaryStatus() == True:
 print("Извлечение векторов из базы данных...")
 c = db.getConnectionData()
 ds = tf.data.Dataset.from_generator(
-    db.generator(corpusSize, db.getDataCorpusName(), 'inputVector', 'outputVector'),
+    db.generator(corpusSize, db.getDataCorpusName(), 
+                 'inputVector', 'outputVector', p.featureExtraction.getMetricType()),
     output_types=(tf.float64, tf.float64),
     output_shapes=(tf.TensorShape((inputSize, )), tf.TensorShape((outputSize, ))))
     # <- использование генератора, который содержит весь набор данных и 
@@ -237,7 +238,7 @@ model = tf.keras.Sequential()
 
 model.add(layers.Dense(inputSize, activation='relu'))
 model.add(layers.Dense(100, activation='relu'))
-model.add(layers.Dense(50, activation='relu'))
+# model.add(layers.Dense(100, activation='relu'))
 model.add(layers.Dense(outputSize, activation='softmax'))
 
 model.compile(optimizer=tf.keras.optimizers.RMSprop(0.001),
