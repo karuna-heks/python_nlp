@@ -14,6 +14,7 @@ from tensorflow.keras import layers
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+from keras.utils.vis_utils import plot_model
 #%%
 
 
@@ -317,10 +318,13 @@ learningTime = json.dumps(endTime-startTime)
 compilationTime2 = "{0}-{1}-{2} {3}-{4}".format(t.tm_year, t.tm_mon, 
                                                t.tm_mday, t.tm_hour, 
                                                t.tm_min)
-nameOfSavedModel = "model_"+p.getName()+"_"+compilationTime2+".h5"
+nameOfSavedModel = "model_"+p.getName()+"_"+compilationTime2
 neuralNetworkStruct = json.dumps(nameOfSavedModel)
 neuralNetworkStruct = neuralNetworkStruct.replace('"', '') 
-model.save("savedModels/"+nameOfSavedModel)
+model.save("savedModels/"+nameOfSavedModel+".h5")
+plot_model(model, 
+           to_file="savedModels/"+nameOfSavedModel+".png", 
+           show_shapes=True)
 
 
 
