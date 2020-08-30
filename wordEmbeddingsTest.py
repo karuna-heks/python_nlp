@@ -201,6 +201,13 @@ for i in range(6):
     print("Expected: ", y, " Predict: ", yhat)
     
     
+
+for i in range(6):
+    x = embPreprocess(navec, seq, xTestData[i])
+    y = np.array(yTestData[i]).reshape(1,2)
+    yhat = model.predict_classes(x)
+    print("Expected: ", y, " Predict: ", yhat)
+    
     
     
     

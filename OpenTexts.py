@@ -75,7 +75,7 @@ class OpenTexts:
         # <- 10 тем. в сумме 102.043-1 текстов
         
     def hasNext(self):
-        if self._countText == 7000:
+        if self._countText == 20000:
             return False
         #!!! <- используется для дебага, для ограничения числа текстов
         if self._chooseMethod == 1:

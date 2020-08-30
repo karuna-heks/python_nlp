@@ -220,47 +220,54 @@ print("Создание нейросетевой модели...")
 
 inputFlow = layers.Input(shape=(p.featureExtraction.getMaxSequence(), 300, 1))
 l1 = layers.Conv2D(
-                    8,
+                    1000,
                     (1,300),
                     input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
                     )(inputFlow)
 l1 = layers.Activation('relu')(l1)
+l1 = layers.MaxPooling2D(pool_size=(50,1))(l1)
 l1 = layers.Flatten()(l1)
 
 l2 = layers.Conv2D(
-                    8,
+                    500,
                     (2,300),
                     input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
                     )(inputFlow)
 l2 = layers.Activation('relu')(l2)
+l2 = layers.MaxPooling2D(pool_size=(49,1))(l2)
 l2 = layers.Flatten()(l2)
 
 l3 = layers.Conv2D(
-                    8,
+                    200,
                     (3,300),
                     input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
                     )(inputFlow)
 l3 = layers.Activation('relu')(l3)
+l3 = layers.MaxPooling2D(pool_size=(48,1))(l3)
 l3 = layers.Flatten()(l3)
 
-l4 = layers.Conv2D(
-                    8,
-                    (4,300),
-                    input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
-                    )(inputFlow)
-l4 = layers.Activation('relu')(l4)
-l4 = layers.Flatten()(l4)
+# l4 = layers.Conv2D(
+#                     100,
+#                     (4,300),
+#                     input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
+#                     )(inputFlow)
+# l4 = layers.Activation('relu')(l4)
+# l4 = layers.MaxPooling2D(pool_size=(47,1))(l4)
+# l4 = layers.Flatten()(l4)
 
-l5 = layers.Conv2D(
-                    8,
-                    (5,300),
-                    input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
-                    )(inputFlow)
-l5 = layers.Activation('relu')(l5)
-l5 = layers.Flatten()(l5)
 
-x = layers.concatenate([l1, l2, l3, l4, l5])
-x = layers.Dense(96, activation='relu')(x)
+# l5 = layers.Conv2D(
+#                     20,
+#                     (5,300),
+#                     input_shape=(p.featureExtraction.getMaxSequence(), 300, 1)
+#                     )(inputFlow)
+# l5 = layers.Activation('relu')(l5)
+# l5 = layers.MaxPooling2D(pool_size=(46,1))(l5)
+# l5 = layers.Flatten()(l5)
+
+
+x = layers.concatenate([l1, l2, l3])
+x = layers.Dense(100, activation='relu')(x)
 x = layers.Dense(outputSize, 'softmax')(x)
 
 model = tf.keras.Model(inputs=inputFlow, outputs=x)
@@ -271,13 +278,49 @@ model.compile(loss='categorical_crossentropy',
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
 
 
+
+
 #%%
 print("Начало процесса обучения сети...")
 startTime = time.time() 
 history = model.fit(ds_train,
                     epochs=p.neuralNetwork.getEpochs(),
                     validation_data=ds_val)
-endTime = time.time() 
+endTime = time.time() - startTime
+print("Время обучения = "+str(endTime))
+
+#%%
+print("Подготовка матрицы ошибок...")
+y1 = np.zeros(corpusSize-trainSize, dtype=int)
+y2 = np.zeros(corpusSize-trainSize, dtype=int)
+yCount = 0
+ds_val_cm = ds_val.unbatch()
+ds_val_cm = ds_val_cm.batch(1)
+for ds_batch in ds_val_cm.__iter__():
+    y1[yCount] = tf.argmax(model.predict(ds_batch), axis=1).numpy() # predict
+    y2[yCount] = tf.argmax(ds_batch[1], axis=1).numpy() # labels
+    yCount += 1
+cm = tf.math.confusion_matrix(y2, y1).numpy() 
+print(cm)
+# Сначала labels, потом predictions
+
+
+#%%
+print("Подготовка списка с точностью угадываний по темам...")
+"""
+создание списка. добавление в него строк с именами тем. темы извлекаем
+из БД.
+извлечение значения [i][i] из матрицы ошибок, отправка в числитель
+вычисление суммы по стобцу [i], отправка суммы в знаменатель
+вычисление отношения, приклеивание значения к соответствующей теме
+"""
+accuracyList = []
+for i in range(outputSize):
+    themeName = db.getTopicListData("name", i+1)[0][0]
+    num = cm[i][i]
+    den = np.sum(cm[:,i])
+    accuracyList.append(themeName + " " + str(np.around(num/den*100, 2))+"%")
+print(accuracyList)
 
 #%%
 

@@ -194,7 +194,41 @@ startTime = time.time()
 history = model.fit(ds_train,
                     epochs=p.neuralNetwork.getEpochs(),
                     validation_data=ds_val)
-endTime = time.time() 
+endTime = time.time() - startTime
+print("Время обучения = "+str(endTime))
+
+#%%
+print("Подготовка матрицы ошибок...")
+y1 = np.zeros(corpusSize-trainSize, dtype=int)
+y2 = np.zeros(corpusSize-trainSize, dtype=int)
+yCount = 0
+ds_val_cm = ds_val.unbatch()
+ds_val_cm = ds_val_cm.batch(1)
+for ds_batch in ds_val_cm.__iter__():
+    y1[yCount] = tf.argmax(model.predict(ds_batch), axis=1).numpy() # predict
+    y2[yCount] = tf.argmax(ds_batch[1], axis=1).numpy() # labels
+    yCount += 1
+cm = tf.math.confusion_matrix(y2, y1).numpy() 
+print(cm)
+# Сначала labels, потом predictions
+
+
+#%%
+print("Подготовка списка с точностью угадываний по темам...")
+"""
+создание списка. добавление в него строк с именами тем. темы извлекаем
+из БД.
+извлечение значения [i][i] из матрицы ошибок, отправка в числитель
+вычисление суммы по стобцу [i], отправка суммы в знаменатель
+вычисление отношения, приклеивание значения к соответствующей теме
+"""
+accuracyList = []
+for i in range(outputSize):
+    themeName = db.getTopicListData("name", i+1)[0][0]
+    num = cm[i][i]
+    den = np.sum(cm[:,i])
+    accuracyList.append(themeName + " " + str(np.around(num/den*100, 2))+"%")
+print(accuracyList)
 
 #%%
 
